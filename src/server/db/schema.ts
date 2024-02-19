@@ -8,33 +8,11 @@ import {
 } from "drizzle-orm/sqlite-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
 export const createTable = sqliteTableCreator((name) => `kakaroto_${name}`);
 
-export const posts = createTable(
-  "post",
-  {
-    id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    name: text("name", { length: 256 }),
-    createdById: text("createdById", { length: 255 })
-      .notNull()
-      .references(() => users.id),
-    createdAt: int("created_at", { mode: "timestamp" })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: int("updatedAt", { mode: "timestamp" }),
-  },
-  (example) => ({
-    createdByIdIdx: index("createdById_idx").on(example.createdById),
-    nameIndex: index("name_idx").on(example.name),
-  })
-);
-
+/** --------------
+ * NextAuth tables
+ * --------------- */
 export const users = createTable("user", {
   id: text("id", { length: 255 }).notNull().primaryKey(),
   name: text("name", { length: 255 }),
@@ -45,7 +23,7 @@ export const users = createTable("user", {
   image: text("image", { length: 255 }),
 });
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersAuthRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
 }));
 
@@ -73,7 +51,7 @@ export const accounts = createTable(
       columns: [account.provider, account.providerAccountId],
     }),
     userIdIdx: index("account_userId_idx").on(account.userId),
-  })
+  }),
 );
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -91,7 +69,7 @@ export const sessions = createTable(
   },
   (session) => ({
     userIdIdx: index("session_userId_idx").on(session.userId),
-  })
+  }),
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -107,5 +85,55 @@ export const verificationTokens = createTable(
   },
   (vt) => ({
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
+  }),
+);
+
+/** --------------
+ * Questions tables
+ * --------------- */
+
+export const questionCollections = createTable(
+  "question_collection",
+  {
+    id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+    userId: text("user_id", { length: 255 })
+      .notNull()
+      .references(() => users.id),
+    title: text("title", { length: 255 }).notNull(),
+    description: text("description", { length: 1_000 }).notNull(),
+    language: text("language", { length: 1_000 }).notNull(),
+    createdAt: int("created_at", { mode: "timestamp" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: int("updated_at", { mode: "timestamp" }),
+  },
+  (questionCollection) => ({
+    questionCollectionUserIdIdx: index("question_collection_user_id_idx").on(
+      questionCollection.userId,
+    ),
+    title: index("question_collection_title_idx").on(questionCollection.title),
+  }),
+);
+export const userRelations = relations(users, ({ many }) => ({
+  questionCollections: many(questionCollections),
+}));
+
+export const questions = createTable(
+  "question",
+  {
+    id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+    question: text("name", { length: 256 }),
+    collectionId: text("collectionId", { length: 255 })
+      .notNull()
+      .references(() => questionCollections.id),
+    createdAt: int("created_at", { mode: "timestamp" })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: int("updatedAt", { mode: "timestamp" }),
+  },
+  (question) => ({
+    questionCollectionIdIdx: index("question_collection_id_idx").on(
+      question.collectionId,
+    ),
+  }),
 );
