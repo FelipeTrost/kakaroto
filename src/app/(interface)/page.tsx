@@ -1,8 +1,11 @@
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getServerAuthSession } from "@/server/auth";
 import Link from "next/link";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await getServerAuthSession();
+  const user = session?.user;
   return (
     <main>
       <section className="container flex flex-col gap-4 pb-12 pt-4 text-center lg:items-center lg:gap-8 lg:py-20">
@@ -19,6 +22,14 @@ export default function HomePage() {
           >
             Get started
           </Link>
+          {user && (
+            <Link
+              href="/create-collection"
+              className={`w-[10rem] ${cn(buttonVariants({ size: "lg", variant: "outline" }))}`}
+            >
+              Create Collection
+            </Link>
+          )}
         </div>
       </section>
     </main>

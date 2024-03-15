@@ -25,7 +25,11 @@ export const users = createTable("user", {
 
 export const usersAuthRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
+  questionCollections: many(questionCollections),
 }));
+// export const usersRelations = relations(users, ({ many }) => ({
+//   questionCollections: many(questionCollections),
+// }));
 
 export const accounts = createTable(
   "account",
@@ -96,16 +100,16 @@ export const questionCollections = createTable(
   "question_collection",
   {
     id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    userId: text("user_id", { length: 255 })
+    userId: text("userId", { length: 255 })
       .notNull()
       .references(() => users.id),
     title: text("title", { length: 255 }).notNull(),
-    description: text("description", { length: 1_000 }).notNull(),
+    description: text("description", { length: 1_000 }),
     language: text("language", { length: 1_000 }).notNull(),
     createdAt: int("created_at", { mode: "timestamp" })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: int("updated_at", { mode: "timestamp" }),
+    updatedAt: int("updated_at", { mode: "timestamp" }).notNull(),
   },
   (questionCollection) => ({
     questionCollectionUserIdIdx: index("question_collection_user_id_idx").on(
@@ -114,16 +118,23 @@ export const questionCollections = createTable(
     title: index("question_collection_title_idx").on(questionCollection.title),
   }),
 );
-export const userRelations = relations(users, ({ many }) => ({
-  questionCollections: many(questionCollections),
-}));
+
+export const questionCollectiionsRelations = relations(
+  questionCollections,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [questionCollections.userId],
+      references: [users.id],
+    }),
+  }),
+);
 
 export const questions = createTable(
   "question",
   {
     id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    question: text("name", { length: 256 }),
-    collectionId: text("collectionId", { length: 255 })
+    question: text("question", { length: 256 }),
+    collectionId: int("collectionId", { mode: "number" })
       .notNull()
       .references(() => questionCollections.id),
     createdAt: int("created_at", { mode: "timestamp" })
