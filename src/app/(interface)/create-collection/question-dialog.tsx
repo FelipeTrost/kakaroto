@@ -22,8 +22,10 @@ export default function QuestionDialog({
   form,
   idx,
 }: {
-  //@ts-expect-error TODO: fix types
-  field: ControllerRenderProps<any, any>;
+  field: ControllerRenderProps<
+    z.infer<typeof createCollectionSchema>,
+    `cards.${number}.question`
+  >;
   form: UseFormReturn<z.infer<typeof createCollectionSchema>>;
   idx: number;
 }) {
