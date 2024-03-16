@@ -9,6 +9,7 @@
     "db:studio": "drizzle-kit studio",
     "dev": "next dev --port 3001",
     "lint": "next lint",
+    "prestart": "npm run db:push",
     "start": "next start"
   },
   "dependencies": {
