@@ -51,6 +51,22 @@ export default function QuestionDialog({
           <DialogDescription>Makeup a fun question</DialogDescription>
         </DialogHeader>
 
+
+        <div className="flex flex-row gap-4">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              form.setValue(
+                `cards.${idx}.question`,
+                (fieldValue?.question ?? "") + '$' + ((parsedQuestion.players.at(-1) ? parsedQuestion.players.at(-1)! + 1 : 1))
+              );
+              form.setFocus(`cards.${idx}.question`,)
+            }}
+          >
+            Add Player
+          </Button>
+        </div>
+
         <FormControl>
           <Textarea {...field} />
         </FormControl>
@@ -59,26 +75,16 @@ export default function QuestionDialog({
 
         <h2>Question preview:</h2>
         <div className="w-full rounded-md border px-3 py-2 text-sm ring-offset-background ring-ring ring-offset-2 min-h-[4ch]">
-          {parsedQuestion.valid ?
+          {
             parsedQuestion.parts.map((part, idx) => {
               if (typeof part === 'string') return part
               return <Badge key={idx}>Player {part}</Badge>
-            }) : null
+            })
+          }
 
-          }</div>
+        </div>
 
         <DialogFooter>
-          <Button
-            onClick={() => {
-              form.setValue(
-                `cards.${idx}.question`,
-                (fieldValue?.question ?? "") +
-                '<span style="color:red">Hoaaa</span>',
-              );
-            }}
-          >
-            Add Player
-          </Button>
 
           <DialogClose asChild>
             <Button type="button">Save</Button>
