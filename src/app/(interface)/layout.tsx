@@ -5,26 +5,39 @@ import { cn } from "@/lib/utils";
 import { getServerAuthSession } from "@/server/auth";
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
+import AvatarMenu from "@/components/kakaroto/avatar-menu";
 
 export default async function RootLayout({ children }: PropsWithChildren) {
   const session = await getServerAuthSession();
   const user = session?.user;
   return (
     <>
-      <section className="m-auto flex w-[90%] max-w-xl flex-row justify-end p-4">
-        {user ? (
-          <>
+      {user ? (
+        <nav className="mx-auto flex max-w-7xl items-center justify-between gap-x-6 p-6 lg:px-8">
+          <div className="flex lg:flex-1">
+            <Link href="/">Kakaroto 🍺</Link>
+          </div>
+          <div className="hidden lg:flex ">
             <Link
               href="/collections"
-              className={`w-[10rem] ${cn(buttonVariants({ variant: "ghost" }))}`}
+              className={`${cn(buttonVariants({ variant: "link" }))}`}
             >
               My collections
             </Link>
-          </>
-        ) : (
-          <></>
-        )}
-      </section>
+            <Link
+              href="/create-collection"
+              className={`${cn(buttonVariants({ variant: "link" }))}`}
+            >
+              Create collection
+            </Link>
+          </div>
+          <div className="flex flex-1 items-center justify-end">
+            <AvatarMenu user={user} optionalComponentsClasses="lg:hidden" />
+          </div>
+        </nav>
+      ) : (
+        <></>
+      )}
       {children}
     </>
   );
