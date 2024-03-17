@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,12 +11,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { FormControl, FormMessage } from "@/components/ui/form";
-import { Input, defaultInputClasses } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createCollectionSchema } from "@/server/db/zod-schemas";
-import { ControllerRenderProps, UseFormReturn } from "react-hook-form";
-import { z } from "zod";
+import { parseQuestion } from "@/lib/game/parser";
+import { type createCollectionSchema } from "@/server/db/zod-schemas";
+import {
+  type ControllerRenderProps,
+  type UseFormReturn,
+} from "react-hook-form";
+import { type z } from "zod";
 
 export default function QuestionDialog({
   field,
@@ -30,6 +33,7 @@ export default function QuestionDialog({
   idx: number;
 }) {
   const fieldValue = form.getValues("cards")[idx];
+  const parsedQuestion = parseQuestion(fieldValue?.question ?? '')
 
   return (
     <Dialog>
@@ -48,25 +52,28 @@ export default function QuestionDialog({
         </DialogHeader>
 
         <FormControl>
-          <div
-            {...field}
-            onInput={(e) => {
-              field.onChange(e.currentTarget.textContent);
-            }}
-            className={defaultInputClasses}
-            contentEditable={true}
-            dangerouslySetInnerHTML={{ __html: fieldValue?.question ?? "" }}
-          ></div>
+          <Textarea {...field} />
         </FormControl>
 
         <FormMessage />
+
+        <h2>Question preview:</h2>
+        <div className="w-full rounded-md border px-3 py-2 text-sm ring-offset-background ring-ring ring-offset-2 min-h-[4ch]">
+          {parsedQuestion.valid ?
+            parsedQuestion.parts.map((part, idx) => {
+              if (typeof part === 'string') return part
+              return <Badge key={idx}>Player {part}</Badge>
+            }) : null
+
+          }</div>
+
         <DialogFooter>
           <Button
             onClick={() => {
               form.setValue(
                 `cards.${idx}.question`,
                 (fieldValue?.question ?? "") +
-                  '<span style="color:red">Hoaaa</span>',
+                '<span style="color:red">Hoaaa</span>',
               );
             }}
           >
