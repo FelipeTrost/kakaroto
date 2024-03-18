@@ -14,6 +14,7 @@ import { FormControl, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { parseQuestion } from "@/lib/game/parser";
 import { type createCollectionSchema } from "@/server/db/zod-schemas";
+import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuContent } from "@/components/ui/dropdown-menu";
 import {
   type ControllerRenderProps,
   type UseFormReturn,
@@ -35,13 +36,32 @@ export default function QuestionDialog({
   const fieldValue = form.getValues("cards")[idx];
   const parsedQuestion = parseQuestion(fieldValue?.question ?? '')
 
+  function addUser(playerNo?: number) {
+    {
+      if (!playerNo || !parsedQuestion.players.includes(playerNo))
+        playerNo = parsedQuestion.players.at(-1) ? parsedQuestion.players.at(-1)! + 1 : 1
+
+      form.setValue(
+        `cards.${idx}.question`,
+        (fieldValue?.question ?? "") + '$' + playerNo
+      );
+
+      form.setFocus(`cards.${idx}.question`)
+    }
+  }
+
   return (
     <Dialog>
       <DialogTrigger asChild className="flex-grow">
         <Button variant="outline">
-          {fieldValue?.question && fieldValue.question.length > 0
-            ? fieldValue?.question
-            : "Enter something"}
+          {fieldValue?.question.length ?? 0 > 0 ?
+            (
+              parsedQuestion.parts.map((part, idx) => {
+                if (typeof part === 'string') return part
+                return <Badge key={idx} variant="secondary">Player {part}</Badge>
+              })
+            )
+            : '... something fun'}
         </Button>
       </DialogTrigger>
 
@@ -55,16 +75,32 @@ export default function QuestionDialog({
         <div className="flex flex-row gap-4">
           <Button
             variant="secondary"
-            onClick={() => {
-              form.setValue(
-                `cards.${idx}.question`,
-                (fieldValue?.question ?? "") + '$' + ((parsedQuestion.players.at(-1) ? parsedQuestion.players.at(-1)! + 1 : 1))
-              );
-              form.setFocus(`cards.${idx}.question`,)
-            }}
+            onClick={() => addUser()}
           >
             Add Player
           </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger disabled={parsedQuestion.nPlayers === 0}>
+              <Button
+                variant="secondary"
+                disabled={parsedQuestion.nPlayers === 0}
+              >
+                Reference Player
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {
+                parsedQuestion.players.map((n, idx) => (
+                  <DropdownMenuItem key={n} onClick={() => addUser(n)} >
+                    {idx + 1}
+                  </DropdownMenuItem>
+                ))
+
+              }
+            </DropdownMenuContent>
+          </DropdownMenu>
+
         </div>
 
         <FormControl>
@@ -74,11 +110,11 @@ export default function QuestionDialog({
         <FormMessage />
 
         <h2>Question preview:</h2>
-        <div className="w-full rounded-md border px-3 py-2 text-sm ring-offset-background ring-ring ring-offset-2 min-h-[4ch]">
+        <div className="w-full rounded-md border px-3 py-2 text-base ring-offset-background ring-ring ring-offset-2 min-h-[4ch]">
           {
             parsedQuestion.parts.map((part, idx) => {
               if (typeof part === 'string') return part
-              return <Badge key={idx}>Player {part}</Badge>
+              return <Badge key={idx} >Player {part}</Badge>
             })
           }
 
