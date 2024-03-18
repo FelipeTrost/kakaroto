@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { type z } from "zod";
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdDining, MdInfo } from "react-icons/md";
 import {
   Form,
   FormControl,
@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/card";
 import { createColection } from "@/server/db/actions";
 import { createCollectionSchema } from "@/server/db/zod-schemas";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import QuestionDialog from "./question-dialog";
@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 
 export default function CreateCollectionForm() {
   const [submitting, startSubmitTransition] = useTransition();
+  // const [activeTab, setActiveTab] = useState('info')
 
   const { toast } = useToast();
   const router = useRouter();
@@ -43,6 +44,10 @@ export default function CreateCollectionForm() {
       cards: [{ question: "" }],
     },
   });
+
+  const errors = form.formState.errors;
+  const infoError = (errors.title ?? errors.description);
+  const questionsError = errors.cards
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -72,10 +77,16 @@ export default function CreateCollectionForm() {
     <Form {...form}>
       <div className="m-auto max-w-[30rem]">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <Tabs defaultValue="info">
+          <Tabs defaultValue="info" >
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="info">Info</TabsTrigger>
-              <TabsTrigger value="questions">Questions</TabsTrigger>
+              <TabsTrigger value="info" className="relative">
+                Info
+                {infoError && <MdInfo className="absolute top-[-.25rem] right-[-.25rem] fill-red-800 text-lg z-50" />}
+              </TabsTrigger>
+              <TabsTrigger value="questions" className="relative">
+                Questions
+                {questionsError && <MdInfo className="absolute top-[-.25rem] right-[-.25rem] fill-red-800 text-lg z-50" />}
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="info">
@@ -129,12 +140,15 @@ export default function CreateCollectionForm() {
                       name={`cards.${index}.question`}
                       render={({ field }) => (
                         <FormItem>
-                          <div className="flex gap-2">
-                            <QuestionDialog
-                              field={field}
-                              form={form}
-                              idx={index}
-                            />
+                          <div className="flex gap-2 ">
+                            <div className="relative flex-grow w-full">
+                              <QuestionDialog
+                                field={field}
+                                form={form}
+                                idx={index}
+                              />
+                              {form.formState.errors.cards?.[index] && <MdInfo className="absolute top-[-.25rem] right-[-.25rem] fill-red-800 text-lg z-50" />}
+                            </div>
                             <Button
                               variant="outline"
                               onClick={() => remove(index)}
@@ -151,7 +165,7 @@ export default function CreateCollectionForm() {
                 <CardFooter>
                   <Button
                     variant="outline"
-                    onClick={() => append({ question: "<span>hola</span>" })}
+                    onClick={() => append({ question: "" })}
                   >
                     Add Question
                   </Button>
@@ -159,9 +173,15 @@ export default function CreateCollectionForm() {
               </Card>
             </TabsContent>
           </Tabs>
-          <Button type="submit" disabled={submitting} className={cn({
-            "animate-bounce": submitting
-          })}>Create Collection</Button>
+          <Button
+            type="submit"
+            disabled={submitting}
+            className={cn({
+              "animate-bounce": submitting,
+            })}
+          >
+            Create Collection
+          </Button>
         </form>
       </div>
     </Form>

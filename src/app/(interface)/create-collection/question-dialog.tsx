@@ -52,8 +52,8 @@ export default function QuestionDialog({
 
   return (
     <Dialog>
-      <DialogTrigger asChild className="flex-grow">
-        <Button variant="outline">
+      <DialogTrigger asChild className="relative flex-grow">
+        <Button variant="outline" className="overflow-x-hidden text-right w-full">
           {fieldValue?.question.length ?? 0 > 0 ?
             (
               parsedQuestion.parts.map((part, idx) => {
@@ -109,16 +109,19 @@ export default function QuestionDialog({
 
         <FormMessage />
 
-        <h2>Question preview:</h2>
-        <div className="w-full rounded-md border px-3 py-2 text-base ring-offset-background ring-ring ring-offset-2 min-h-[4ch]">
-          {
-            parsedQuestion.parts.map((part, idx) => {
-              if (typeof part === 'string') return part
-              return <Badge key={idx} >Player {part}</Badge>
-            })
-          }
-
-        </div>
+        {parsedQuestion.nPlayers > 0 &&
+          (<>
+            <h2>Question preview:</h2>
+            <div className="w-full rounded-md border px-3 py-2 text-base ring-offset-background ring-ring ring-offset-2 min-h-[4ch]">
+              {
+                parsedQuestion.parts.map((part, idx) => {
+                  if (typeof part === 'string') return part
+                  return <Badge key={idx} >Player {part}</Badge>
+                })
+              }
+            </div>
+          </>)
+        }
 
         <DialogFooter>
 
