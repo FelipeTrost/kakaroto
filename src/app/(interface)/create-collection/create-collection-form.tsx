@@ -29,6 +29,7 @@ import { useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import QuestionDialog from "./question-dialog";
+import { cn } from "@/lib/utils";
 
 export default function CreateCollectionForm() {
   const [submitting, startSubmitTransition] = useTransition();
@@ -50,7 +51,6 @@ export default function CreateCollectionForm() {
 
   function onSubmit(values: z.infer<typeof createCollectionSchema>) {
     startSubmitTransition(async () => {
-      alert(JSON.stringify(values));
       const response = await createColection(values);
 
       if (response.type === "error")
@@ -159,7 +159,9 @@ export default function CreateCollectionForm() {
               </Card>
             </TabsContent>
           </Tabs>
-          <Button type="submit">Create Collection</Button>
+          <Button type="submit" disabled={submitting} className={cn({
+            "animate-bounce": submitting
+          })}>Create Collection</Button>
         </form>
       </div>
     </Form>
