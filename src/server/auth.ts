@@ -13,6 +13,7 @@ import { db } from "@/server/db";
 import { createTable } from "@/server/db/schema";
 
 /**
+ *
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
  * object and keep type safety.
  *

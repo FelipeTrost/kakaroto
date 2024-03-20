@@ -4,12 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "next build",
+    "build": "SKIP_ENV_VALIDATION=1 next build",
     "db:push": "drizzle-kit push:sqlite",
     "db:studio": "drizzle-kit studio",
     "dev": "next dev --port 3001",
     "lint": "next lint",
-    "prestart": "npm run db:push",
     "start": "next start"
   },
   "dependencies": {
