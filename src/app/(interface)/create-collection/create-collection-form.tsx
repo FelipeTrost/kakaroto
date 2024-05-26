@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { type z } from "zod";
-import { MdDelete, MdDining, MdInfo } from "react-icons/md";
+import { MdInfo } from "react-icons/md";
 import {
   Form,
   FormControl,
@@ -25,11 +25,12 @@ import {
 } from "@/components/ui/card";
 import { createColection } from "@/server/db/actions";
 import { createCollectionSchema } from "@/server/db/zod-schemas";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import QuestionDialog from "./question-dialog";
 import { cn } from "@/lib/utils";
+import { Accordion } from "@/components/ui/accordion";
 
 export default function CreateCollectionForm() {
   const [submitting, startSubmitTransition] = useTransition();
@@ -41,15 +42,15 @@ export default function CreateCollectionForm() {
   const form = useForm<z.infer<typeof createCollectionSchema>>({
     resolver: zodResolver(createCollectionSchema),
     defaultValues: {
-      cards: [{ question: "" }],
+      cards: [{ question: "", type: "normal" }],
     },
   });
 
   const errors = form.formState.errors;
-  const infoError = (errors.title ?? errors.description);
-  const questionsError = errors.cards
+  const infoError = errors.title ?? errors.description;
+  const questionsError = errors.cards;
 
-  const { fields, append, remove } = useFieldArray({
+  const fieldArray = useFieldArray({
     control: form.control,
     name: "cards",
   });
@@ -77,15 +78,19 @@ export default function CreateCollectionForm() {
     <Form {...form}>
       <div className="m-auto max-w-[30rem]">
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <Tabs defaultValue="info" >
+          <Tabs defaultValue="info">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="info" className="relative">
                 Info
-                {infoError && <MdInfo className="absolute top-[-.25rem] right-[-.25rem] fill-red-800 text-lg z-50" />}
+                {infoError && (
+                  <MdInfo className="absolute right-[-.25rem] top-[-.25rem] z-50 fill-red-800 text-lg" />
+                )}
               </TabsTrigger>
               <TabsTrigger value="questions" className="relative">
                 Questions
-                {questionsError && <MdInfo className="absolute top-[-.25rem] right-[-.25rem] fill-red-800 text-lg z-50" />}
+                {questionsError && (
+                  <MdInfo className="absolute right-[-.25rem] top-[-.25rem] z-50 fill-red-800 text-lg" />
+                )}
               </TabsTrigger>
             </TabsList>
 
@@ -133,39 +138,23 @@ export default function CreateCollectionForm() {
                   <CardTitle> Questions</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
-                  {fields.map((item, index) => (
-                    <FormField
-                      key={item.id}
-                      control={form.control}
-                      name={`cards.${index}.question`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex gap-2 ">
-                            <div className="relative flex-grow w-full">
-                              <QuestionDialog
-                                field={field}
-                                form={form}
-                                idx={index}
-                              />
-                              {form.formState.errors.cards?.[index] && <MdInfo className="absolute top-[-.25rem] right-[-.25rem] fill-red-800 text-lg z-50" />}
-                            </div>
-                            <Button
-                              variant="outline"
-                              onClick={() => remove(index)}
-                              disabled={fields.length === 1}
-                            >
-                              <MdDelete />
-                            </Button>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  ))}
+                  <Accordion type="single" defaultValue="0" collapsible>
+                    {fieldArray.fields.map((item, index) => (
+                      <QuestionDialog
+                        form={form}
+                        idx={index}
+                        fieldArray={fieldArray}
+                        key={item.id}
+                      />
+                    ))}
+                  </Accordion>
                 </CardContent>
                 <CardFooter>
                   <Button
                     variant="outline"
-                    onClick={() => append({ question: "" })}
+                    onClick={() =>
+                      fieldArray.append({ question: "", type: "normal" })
+                    }
                   >
                     Add Question
                   </Button>

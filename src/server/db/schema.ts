@@ -133,7 +133,9 @@ export const questions = createTable(
   "question",
   {
     id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    question: text("question", { length: 256 }),
+    question: text("question", { length: 256 }).notNull(),
+    questionEnd: text("question_end", { length: 256 }),
+    type: text("type", { enum: ["normal", "ongoing"] }).notNull(),
     collectionId: int("collectionId", { mode: "number" })
       .notNull()
       .references(() => questionCollections.id),
