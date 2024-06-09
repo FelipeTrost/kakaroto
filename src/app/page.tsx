@@ -25,7 +25,7 @@ export default async function HomePage() {
               </h2>
             </div>
             <Link
-              href="https://google.com"
+              href="/game"
               className={`w-[10rem] ${cn(buttonVariants({ size: "lg" }))}`}
             >
               Get started
