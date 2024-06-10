@@ -1,3 +1,3 @@
 export default function GamePage() {
-  return <div>Coming soon...</div>;
+  return <div style={{ padding: "16px" }}>Coming soon...</div>;
 }
