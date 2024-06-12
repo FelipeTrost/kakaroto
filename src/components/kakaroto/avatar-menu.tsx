@@ -1,3 +1,5 @@
+'use client'
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -8,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { type DefaultSession } from "next-auth";
+import { signOut } from "next-auth/react";
 import { HiOutlineLogout } from "react-icons/hi";
 import Link from "next/link";
 
@@ -23,9 +26,9 @@ export default function AvatarMenu({ user, optionalComponentsClasses }: { user: 
       <DropdownMenuContent>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => signOut()}>
           <HiOutlineLogout className="mr-2" />
-          Logout
+          Sign out
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild className={optionalComponentsClasses}>
