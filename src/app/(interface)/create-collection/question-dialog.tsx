@@ -65,10 +65,11 @@ export default function QuestionDialog({
 
   return (
     <AccordionItem value={idx.toString()}>
-      <AccordionTrigger className="relative flex-grow">
-        <>
-          {fieldValue?.question.length ?? 0 > 0
-            ? parsedQuestion.parts.map((part, idx) => {
+      <AccordionTrigger className="relative">
+        <div className="flex-grow overflow-hidden flex justify-between items-center pr-4 gap-4">
+          <span className="text-ellipsis overflow-hidden whitespace-nowrap">
+            {fieldValue?.question.length ?? 0 > 0
+              ? parsedQuestion.parts.map((part, idx) => {
                 if (typeof part === "string") return part;
                 return (
                   <Badge key={idx} variant="secondary">
@@ -76,20 +77,22 @@ export default function QuestionDialog({
                   </Badge>
                 );
               })
-            : "... something fun"}
-
-          {form.formState.errors.cards?.[idx] && (
-            <MdInfo className="absolute right-[-.25rem] top-[-.25rem] z-50 fill-red-800 text-lg" />
-          )}
+              : "... something fun"}
+          </span>
 
           <Button
             variant="outline"
             onClick={() => fieldArray.remove(idx)}
             disabled={fieldArray.fields.length === 1}
+            className="self-end"
           >
             <MdDelete />
           </Button>
-        </>
+
+          {form.formState.errors.cards?.[idx] && (
+            <MdInfo className="absolute right-[-.25rem] top-[-.25rem] z-50 fill-red-800 text-lg" />
+          )}
+        </div>
       </AccordionTrigger>
 
       <AccordionContent className="w-full max-w-lg overflow-x-hidden p-1">
