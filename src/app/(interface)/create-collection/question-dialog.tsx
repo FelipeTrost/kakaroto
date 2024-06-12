@@ -32,6 +32,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { MdDelete, MdInfo } from "react-icons/md";
+import { Switch } from "@/components/ui/switch";
 
 export default function QuestionDialog({
   form,
@@ -100,25 +101,15 @@ export default function QuestionDialog({
           control={form.control}
           name={`cards.${idx}.type`}
           render={({ field }) => (
-            <FormItem className=" max-w-40">
-              <FormLabel>Question type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a question type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="normal">Normal</SelectItem>
-                  <SelectItem value="ongoing">Ongoing</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
+            <FormItem className="flex items-center space-x-2 gap-4 mb-8">
+              <Switch
+                checked={field.value === "ongoing"}
+                onCheckedChange={(checked) => field.onChange(checked ? "ongoing" : "normal")}
+              />
+              <FormLabel className="!m-0">Ongoing challenge</FormLabel>
             </FormItem>
           )}
         />
-
-        <div className="m-auto my-2 w-[95%] border-[0.5px] border-gray-500" />
 
         <div className="flex w-full max-w-full flex-row gap-4">
           <Button variant="secondary" onClick={() => addUser()}>
