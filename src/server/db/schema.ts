@@ -1,26 +1,29 @@
 import { relations, sql } from "drizzle-orm";
 import {
   index,
-  int,
+  integer,
   primaryKey,
-  sqliteTableCreator,
-  text,
-} from "drizzle-orm/sqlite-core";
+  varchar,
+  pgTableCreator,
+  timestamp,
+  serial,
+} from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
-export const createTable = sqliteTableCreator((name) => `kakaroto_${name}`);
+export const createTable = pgTableCreator((name) => `kakaroto_${name}`);
 
 /** --------------
  * NextAuth tables
  * --------------- */
 export const users = createTable("user", {
-  id: text("id", { length: 255 }).notNull().primaryKey(),
-  name: text("name", { length: 255 }),
-  email: text("email", { length: 255 }).notNull(),
-  emailVerified: int("emailVerified", {
-    mode: "timestamp",
+  id: varchar("id", { length: 255 }).notNull().primaryKey(),
+  name: varchar("name", { length: 255 }),
+  email: varchar("email", { length: 255 }).notNull(),
+  emailVerified: timestamp("emailVerified", {
+    mode: "date",
+    withTimezone: true,
   }).default(sql`CURRENT_TIMESTAMP`),
-  image: text("image", { length: 255 }),
+  image: varchar("image", { length: 255 }),
 });
 
 export const usersAuthRelations = relations(users, ({ many }) => ({
@@ -34,21 +37,21 @@ export const usersAuthRelations = relations(users, ({ many }) => ({
 export const accounts = createTable(
   "account",
   {
-    userId: text("userId", { length: 255 })
+    userId: varchar("userId", { length: 255 })
       .notNull()
       .references(() => users.id),
-    type: text("type", { length: 255 })
+    type: varchar("type", { length: 255 })
       .$type<AdapterAccount["type"]>()
       .notNull(),
-    provider: text("provider", { length: 255 }).notNull(),
-    providerAccountId: text("providerAccountId", { length: 255 }).notNull(),
-    refresh_token: text("refresh_token"),
-    access_token: text("access_token"),
-    expires_at: int("expires_at"),
-    token_type: text("token_type", { length: 255 }),
-    scope: text("scope", { length: 255 }),
-    id_token: text("id_token"),
-    session_state: text("session_state", { length: 255 }),
+    provider: varchar("provider", { length: 255 }).notNull(),
+    providerAccountId: varchar("providerAccountId", { length: 255 }).notNull(),
+    refresh_token: varchar("refresh_token"),
+    access_token: varchar("access_token"),
+    expires_at: integer("expires_at"),
+    token_type: varchar("token_type", { length: 255 }),
+    scope: varchar("scope", { length: 255 }),
+    id_token: varchar("id_token"),
+    session_state: varchar("session_state", { length: 255 }),
   },
   (account) => ({
     compoundKey: primaryKey({
@@ -65,11 +68,16 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
 export const sessions = createTable(
   "session",
   {
-    sessionToken: text("sessionToken", { length: 255 }).notNull().primaryKey(),
-    userId: text("userId", { length: 255 })
+    sessionToken: varchar("sessionToken", { length: 255 })
+      .notNull()
+      .primaryKey(),
+    userId: varchar("userId", { length: 255 })
       .notNull()
       .references(() => users.id),
-    expires: int("expires", { mode: "timestamp" }).notNull(),
+    expires: timestamp("expires", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
   },
   (session) => ({
     userIdIdx: index("session_userId_idx").on(session.userId),
@@ -83,9 +91,12 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 export const verificationTokens = createTable(
   "verificationToken",
   {
-    identifier: text("identifier", { length: 255 }).notNull(),
-    token: text("token", { length: 255 }).notNull(),
-    expires: int("expires", { mode: "timestamp" }).notNull(),
+    identifier: varchar("identifier", { length: 255 }).notNull(),
+    token: varchar("token", { length: 255 }).notNull(),
+    expires: timestamp("expires", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
   },
   (vt) => ({
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
@@ -99,17 +110,23 @@ export const verificationTokens = createTable(
 export const questionCollections = createTable(
   "question_collection",
   {
-    id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    userId: text("userId", { length: 255 })
+    id: serial("id").primaryKey(),
+    userId: varchar("userId", { length: 255 })
       .notNull()
       .references(() => users.id),
-    title: text("title", { length: 255 }).notNull(),
-    description: text("description", { length: 1_000 }),
-    language: text("language", { length: 1_000 }).notNull(),
-    createdAt: int("created_at", { mode: "timestamp" })
+    title: varchar("title", { length: 255 }).notNull(),
+    description: varchar("description", { length: 1_000 }),
+    language: varchar("language", { length: 1_000 }).notNull(),
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: int("updated_at", { mode: "timestamp" }).notNull(),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (questionCollection) => ({
     questionCollectionUserIdIdx: index("question_collection_user_id_idx").on(
@@ -132,17 +149,23 @@ export const questionCollectiionsRelations = relations(
 export const questions = createTable(
   "question",
   {
-    id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    question: text("question", { length: 256 }).notNull(),
-    questionEnd: text("question_end", { length: 256 }),
-    type: text("type", { enum: ["normal", "ongoing"] }).notNull(),
-    collectionId: int("collectionId", { mode: "number" })
+    id: serial("id").primaryKey(),
+    question: varchar("question", { length: 256 }).notNull(),
+    questionEnd: varchar("question_end", { length: 256 }),
+    type: varchar("type", { enum: ["normal", "ongoing"] }).notNull(),
+    collectionId: integer("collectionId")
       .notNull()
       .references(() => questionCollections.id),
-    createdAt: int("created_at", { mode: "timestamp" })
+    createdAt: timestamp("created_at", {
+      mode: "date",
+      withTimezone: true,
+    })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: int("updatedAt", { mode: "timestamp" }),
+    updatedAt: timestamp("updated_at", {
+      mode: "date",
+      withTimezone: true,
+    }).default(sql`CURRENT_TIMESTAMP`),
   },
   (question) => ({
     questionCollectionIdIdx: index("question_collection_id_idx").on(

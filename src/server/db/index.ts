@@ -1,21 +1,21 @@
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
-
-import { env } from "@/env.js";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
 import * as schema from "./schema";
+import { env } from "@/env.js";
+import postgres from "postgres";
 
-function createDbConnection() {
-  if (process.env.SKIP_ENV_VALIDATION) {
-    const mockConnection = {} as unknown as Database.Database;
-    return drizzle(mockConnection, { schema });
-  }
+const postgresArgs = {
+  host: env.DATABASE_URL,
+  user: env.DATABASE_USER,
+  password: env.DATABASE_PASSWORD,
+  db: env.DATABASE_NAME,
+};
 
-  return drizzle(
-    new Database(env.DATABASE_URL, {
-      fileMustExist: false,
-    }),
-    { schema },
-  );
-}
+const migrationClient = postgres({ ...postgresArgs, max: 1 });
+await migrate(drizzle(migrationClient), {
+  migrationsFolder: "./drizzle",
+});
+await migrationClient.end();
 
-export const db = createDbConnection();
+const queryClient = postgres(postgresArgs);
+export const db = drizzle(queryClient, { schema });

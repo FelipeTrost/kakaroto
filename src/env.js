@@ -7,12 +7,10 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    DATABASE_URL: z
-      .string()
-      .refine(
-        (str) => !str.includes("YOUR_MYSQL_URL_HERE"),
-        "You forgot to change the default URL",
-      ),
+    DATABASE_URL: z.string(),
+    DATABASE_USER: z.string(),
+    DATABASE_PASSWORD: z.string(),
+    DATABASE_NAME: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -48,6 +46,9 @@ export const env = createEnv({
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
+    DATABASE_USER: process.env.DATABASE_USER,
+    DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
+    DATABASE_NAME: process.env.DATABASE_NAME,
     NODE_ENV: process.env.NODE_ENV,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,

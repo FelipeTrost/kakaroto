@@ -4,9 +4,12 @@ import { env } from "@/env.js";
 
 export default {
   schema: "./src/server/db/schema.ts",
-  driver: "better-sqlite",
+  out: "./drizzle",
   dbCredentials: {
-    url: env.DATABASE_URL,
+    host: env.DATABASE_URL,
+    user: env.DATABASE_USER,
+    password: env.DATABASE_PASSWORD,
+    database: env.DATABASE_NAME,
   },
   tablesFilter: ["kakaroto_*"],
 } satisfies Config;
