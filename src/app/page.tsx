@@ -10,11 +10,11 @@ export default async function HomePage() {
 
   return (
     <>
-      {user && <nav className="mx-auto flex max-w-7xl items-center justify-between gap-x-6 p-6 lg:px-8">
+      {user ? <nav className="mx-auto flex max-w-7xl items-center justify-between gap-x-6 p-6 lg:px-8">
         <div className="flex flex-1 items-center justify-end">
           <AvatarMenu user={user} />
         </div>
-      </nav>}
+      </nav> : <div className="h-8" />}
       <main>
         <section className="container flex flex-col gap-4 pb-12 pt-4 text-center lg:items-center lg:gap-8 lg:py-20">
           <div className="flex flex-1 flex-col items-center gap-4 text-center lg:gap-8">
