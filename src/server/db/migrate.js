@@ -1,5 +1,5 @@
 import { migrate } from "drizzle-orm/postgres-js/migrator";
-import { env } from "process";
+import { env } from "../../env.js";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 
@@ -9,8 +9,9 @@ export const connection = postgres({
   password: env.DATABASE_PASSWORD,
   db: env.DATABASE_NAME,
 });
+console.log(env);
 
-export const db = drizzle(connection);
+const db = drizzle(connection);
 await migrate(db, { migrationsFolder: "./drizzle" });
 
 await connection.end();
