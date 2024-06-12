@@ -126,7 +126,9 @@ export const questionCollections = createTable(
     updatedAt: timestamp("updated_at", {
       mode: "date",
       withTimezone: true,
-    }).default(sql`CURRENT_TIMESTAMP`),
+    })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
   },
   (questionCollection) => ({
     questionCollectionUserIdIdx: index("question_collection_user_id_idx").on(

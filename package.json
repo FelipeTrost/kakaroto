@@ -6,6 +6,9 @@
   "scripts": {
     "build": "SKIP_ENV_VALIDATION=1 next build",
     "db:studio": "drizzle-kit studio",
+    "db:generate": "npx drizzle-kit generate:pg",
+    "db:migrate": "node src/server/db/migrate.js",
+    "prestart": "npm run db:migrate",
     "dev": "next dev --port 3001",
     "lint": "next lint",
     "start": "next start"

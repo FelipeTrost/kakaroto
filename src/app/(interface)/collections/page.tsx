@@ -1,7 +1,6 @@
 import Collection from "@/components/kakaroto/collection";
 import { getServerAuthSession } from "@/server/auth";
 import { db } from "@/server/db";
-import { redirect } from "next/navigation";
 
 export default async function CreateCollectionPage() {
   const session = await getServerAuthSession();
