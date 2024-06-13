@@ -6,10 +6,7 @@ export default {
   schema: "./src/server/db/schema.ts",
   dialect: "postgresql",
   dbCredentials: {
-    host: env.DATABASE_URL,
-    user: env.DATABASE_USER,
-    password: env.DATABASE_PASSWORD,
-    database: env.DATABASE_NAME,
+    url: env.DATABASE_URL,
   },
   tablesFilter: ["kakaroto_*"],
 } satisfies Config;
