@@ -32,7 +32,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { MdDelete, MdInfo } from "react-icons/md";
+import { FaAngleDown, FaPlus } from "react-icons/fa";
 import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 
 export default function QuestionDialog({
   form,
@@ -67,18 +69,9 @@ export default function QuestionDialog({
   return (
     <AccordionItem value={idx.toString()}>
       <AccordionTrigger className="relative">
-        <div className="flex-grow overflow-hidden flex justify-between items-center pr-4 gap-4">
-          <span className="text-ellipsis overflow-hidden whitespace-nowrap">
-            {fieldValue?.question.length ?? 0 > 0
-              ? parsedQuestion.parts.map((part, idx) => {
-                if (typeof part === "string") return part;
-                return (
-                  <Badge key={idx} variant="secondary">
-                    Player {part}
-                  </Badge>
-                );
-              })
-              : "... something fun"}
+        <div className="flex flex-grow items-center justify-between gap-4 overflow-hidden pr-4">
+          <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+            Question {idx + 1}
           </span>
 
           <Button
@@ -96,51 +89,65 @@ export default function QuestionDialog({
         </div>
       </AccordionTrigger>
 
-      <AccordionContent className="w-full max-w-lg overflow-x-hidden p-1">
+      <AccordionContent className="w-full max-w-lg overflow-x-hidden px-2">
         <FormField
           control={form.control}
           name={`cards.${idx}.type`}
           render={({ field }) => (
-            <FormItem className="flex items-center space-x-2 gap-4 mb-8">
+            <FormItem className="mb-8 flex items-center gap-4 space-x-2">
               <Switch
                 checked={field.value === "ongoing"}
-                onCheckedChange={(checked) => field.onChange(checked ? "ongoing" : "normal")}
+                onCheckedChange={(checked) =>
+                  field.onChange(checked ? "ongoing" : "normal")
+                }
               />
               <FormLabel className="!m-0">Ongoing challenge</FormLabel>
             </FormItem>
           )}
         />
 
-        <div className="flex w-full max-w-full flex-row gap-4">
-          <Button variant="secondary" onClick={() => addUser()}>
-            Add Player
-          </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger disabled={parsedQuestion.nPlayers === 0}>
-              <Button
-                variant="secondary"
-                disabled={parsedQuestion.nPlayers === 0}
-              >
-                Reference Player
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {parsedQuestion.players.map((n, idx) => (
-                <DropdownMenuItem key={n} onClick={() => addUser(n)}>
-                  {idx + 1}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
         <FormField
           control={form.control}
           name={`cards.${idx}.question`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Question</FormLabel>
+              <FormLabel>Challenge</FormLabel>
+
+              <div className="!mb-2 flex w-full max-w-full flex-row">
+                <Button
+                  variant="secondary"
+                  onClick={() => addUser()}
+                  className={cn([
+                    {
+                      "rounded-r-none": parsedQuestion.nPlayers > 0,
+                    },
+                  ])}
+                >
+                  <FaPlus />
+                </Button>
+
+                {parsedQuestion.nPlayers > 0 && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      <Button
+                        variant="secondary"
+                        disabled={parsedQuestion.nPlayers === 0}
+                        className="fadeIn rounded-l-none duration-300"
+                      >
+                        Reference Player <FaAngleDown className="ml-2" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      {parsedQuestion.players.map((n, idx) => (
+                        <DropdownMenuItem key={n} onClick={() => addUser(n)}>
+                          {idx + 1}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </div>
+
               <FormControl>
                 <Textarea
                   placeholder="Everybody has to drink"
@@ -155,7 +162,7 @@ export default function QuestionDialog({
 
         {parsedQuestion.nPlayers > 0 && (
           <>
-            <h2>Question preview:</h2>
+            <h2 className="mt-2">Question preview:</h2>
             <div className="min-h-[4ch] w-full rounded-md border px-3 py-2 text-base ring-ring ring-offset-2 ring-offset-background">
               {parsedQuestion.parts.map((part, idx) => {
                 if (typeof part === "string") return part;
