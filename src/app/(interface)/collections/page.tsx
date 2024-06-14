@@ -1,15 +1,16 @@
 import Collection from "@/components/kakaroto/collection";
 import { getServerAuthSession } from "@/server/auth";
 import { db } from "@/server/db";
+import { redirect } from "next/navigation";
 
 export default async function CreateCollectionPage() {
   const session = await getServerAuthSession();
   const user = session?.user;
 
-  // if (!user) redirect("/api/auth/signin");
+  if (!user) redirect("/api/auth/signin");
 
   const collections = await db.query.questionCollections.findMany({
-    // where: (collection, { eq }) => eq(collection.userId, user.id),
+    where: (collection, { eq }) => eq(collection.userId, user.id),
   });
 
   return (
