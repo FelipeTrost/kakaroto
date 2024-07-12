@@ -61,20 +61,23 @@ export default function QuestionForm({
 
   return (
     <AccordionItem value={idx.toString()}>
-      <AccordionTrigger className="relative">
-        <div className="flex flex-grow items-center justify-between gap-4 overflow-hidden pr-4">
-          <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-            Question {idx + 1}
-          </span>
-
+      <AccordionTrigger
+        className="relative"
+        rightNode={
           <Button
             variant="outline"
             onClick={() => fieldArray.remove(idx)}
             disabled={fieldArray.fields.length === 1}
-            className="self-end"
+            className="ml-4"
           >
             <MdDelete />
           </Button>
+        }
+      >
+        <div className="flex flex-grow items-center justify-between gap-4 overflow-hidden pr-4">
+          <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+            Question {idx + 1}
+          </span>
 
           {form.formState.errors.cards?.[idx] && (
             <MdInfo className="absolute right-[-.25rem] top-[-.25rem] z-50 fill-red-800 text-lg" />
