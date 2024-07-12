@@ -24,7 +24,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { createCollectionSchema } from "@/server/db/zod-schemas";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useParams, useRouter } from "next/navigation";
 import QuestionForm from "./question-form";
@@ -62,12 +62,12 @@ export default function CollectionForm({
   const infoError = errors.title ?? errors.description;
   const questionsError = errors.cards;
 
-  console.log(errors);
-
   const fieldArray = useFieldArray({
     control: form.control,
     name: "cards",
   });
+
+  const [accordionIdx, setAccordionIdx] = useState("0");
 
   function onSubmitHandler(values: z.infer<typeof createCollectionSchema>) {
     startSubmitTransition(async () => {
@@ -159,7 +159,13 @@ export default function CollectionForm({
                   <CardTitle> Questions</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-4">
-                  <Accordion type="single" defaultValue="0" collapsible>
+                  <Accordion
+                    type="single"
+                    defaultValue="0"
+                    collapsible
+                    value={accordionIdx}
+                    onValueChange={setAccordionIdx}
+                  >
                     {fieldArray.fields.map((item, index) => (
                       <QuestionForm
                         form={form}
@@ -173,9 +179,10 @@ export default function CollectionForm({
                 <CardFooter>
                   <Button
                     variant="outline"
-                    onClick={() =>
-                      fieldArray.append({ question: "", type: "normal" })
-                    }
+                    onClick={() => {
+                      fieldArray.append({ question: "", type: "normal" });
+                      setAccordionIdx(fieldArray.fields.length.toString());
+                    }}
                   >
                     Add Question
                   </Button>
