@@ -1,6 +1,7 @@
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
-import CreateCollectionForm from "./create-collection-form";
+import { createColection } from "@/server/db/actions";
+import CollectionForm from "../collection-form";
 
 export default async function CreateCollectionPage() {
   const session = await getServerAuthSession();
@@ -11,9 +12,8 @@ export default async function CreateCollectionPage() {
   return (
     <main>
       <section className="container pt-4 lg:pt-20">
-        <CreateCollectionForm />
+        <CollectionForm onSubmit={createColection} />
       </section>
     </main>
   );
 }
-export const dynamic = "force-dynamic";

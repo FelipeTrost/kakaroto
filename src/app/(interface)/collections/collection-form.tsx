@@ -23,25 +23,37 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { createColection } from "@/server/db/actions";
 import { createCollectionSchema } from "@/server/db/zod-schemas";
 import { useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { useRouter } from "next/navigation";
-import QuestionDialog from "./question-dialog";
+import { useParams, useRouter } from "next/navigation";
+import QuestionForm from "./question-form";
 import { cn } from "@/lib/utils";
 import { Accordion } from "@/components/ui/accordion";
+import { type UserResponse } from "@/server/user-response";
 
-export default function CreateCollectionForm() {
+export default function CollectionForm({
+  defaultValues,
+  onSubmit,
+  submitText,
+}: {
+  onSubmit: (
+    values: z.infer<typeof createCollectionSchema>,
+    id: number,
+  ) => Promise<UserResponse>;
+  defaultValues?: z.infer<typeof createCollectionSchema>;
+  submitText?: string;
+}) {
   const [submitting, startSubmitTransition] = useTransition();
-  // const [activeTab, setActiveTab] = useState('info')
+  const params = useParams<{ collectionId: string }>();
+  const id = Number(decodeURIComponent(params.collectionId)) || 0;
 
   const { toast } = useToast();
   const router = useRouter();
 
   const form = useForm<z.infer<typeof createCollectionSchema>>({
     resolver: zodResolver(createCollectionSchema),
-    defaultValues: {
+    defaultValues: defaultValues ?? {
       cards: [{ question: "", type: "normal" }],
     },
   });
@@ -50,14 +62,16 @@ export default function CreateCollectionForm() {
   const infoError = errors.title ?? errors.description;
   const questionsError = errors.cards;
 
+  console.log(errors);
+
   const fieldArray = useFieldArray({
     control: form.control,
     name: "cards",
   });
 
-  function onSubmit(values: z.infer<typeof createCollectionSchema>) {
+  function onSubmitHandler(values: z.infer<typeof createCollectionSchema>) {
     startSubmitTransition(async () => {
-      const response = await createColection(values);
+      const response = await onSubmit(values, id);
 
       if (response.type === "error")
         toast({
@@ -69,6 +83,7 @@ export default function CreateCollectionForm() {
           description: "Collection created",
           title: "Success",
         });
+        router.refresh();
         router.push("/collections");
       }
     });
@@ -77,7 +92,10 @@ export default function CreateCollectionForm() {
   return (
     <Form {...form}>
       <div className="m-auto max-w-[30rem]">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form
+          onSubmit={form.handleSubmit(onSubmitHandler)}
+          className="space-y-8"
+        >
           <Tabs defaultValue="info">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="info" className="relative">
@@ -120,6 +138,7 @@ export default function CreateCollectionForm() {
                       <FormItem>
                         <FormLabel>Description</FormLabel>
                         <FormControl>
+                          {/**@ts-expect-error for some reason the field being nullable is not supported*/}
                           <Textarea
                             placeholder="Collection description"
                             {...field}
@@ -140,7 +159,7 @@ export default function CreateCollectionForm() {
                 <CardContent className="flex flex-col gap-4">
                   <Accordion type="single" defaultValue="0" collapsible>
                     {fieldArray.fields.map((item, index) => (
-                      <QuestionDialog
+                      <QuestionForm
                         form={form}
                         idx={index}
                         fieldArray={fieldArray}
@@ -169,7 +188,7 @@ export default function CreateCollectionForm() {
               "animate-bounce": submitting,
             })}
           >
-            Create Collection
+            {submitText ?? "Create Collection"}
           </Button>
         </form>
       </div>

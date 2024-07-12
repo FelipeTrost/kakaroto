@@ -31,7 +31,7 @@ export default async function HomePage() {
               Get started
             </Link>
             <Link
-              href="/create-collection"
+              href="/collections/new"
               className={`w-[10rem] ${cn(buttonVariants({ size: "lg", variant: "outline" }))}`}
             >
               Create Collection

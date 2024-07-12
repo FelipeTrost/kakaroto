@@ -7,6 +7,7 @@ import {
   pgTableCreator,
   timestamp,
   serial,
+  json,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -117,6 +118,7 @@ export const questionCollections = createTable(
     title: varchar("title", { length: 255 }).notNull(),
     description: varchar("description", { length: 1_000 }),
     language: varchar("language", { length: 1_000 }).notNull(),
+    cards: json("questions"),
     createdAt: timestamp("created_at", {
       mode: "date",
       withTimezone: true,
@@ -148,30 +150,30 @@ export const questionCollectiionsRelations = relations(
   }),
 );
 
-export const questions = createTable(
-  "question",
-  {
-    id: serial("id").primaryKey(),
-    question: varchar("question", { length: 256 }).notNull(),
-    questionEnd: varchar("question_end", { length: 256 }),
-    type: varchar("type", { enum: ["normal", "ongoing"] }).notNull(),
-    collectionId: integer("collectionId")
-      .notNull()
-      .references(() => questionCollections.id),
-    createdAt: timestamp("created_at", {
-      mode: "date",
-      withTimezone: true,
-    })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: timestamp("updated_at", {
-      mode: "date",
-      withTimezone: true,
-    }).default(sql`CURRENT_TIMESTAMP`),
-  },
-  (question) => ({
-    questionCollectionIdIdx: index("question_collection_id_idx").on(
-      question.collectionId,
-    ),
-  }),
-);
+// export const questions = createTable(
+//   "question",
+//   {
+//     id: serial("id").primaryKey(),
+//     question: varchar("question", { length: 256 }).notNull(),
+//     questionEnd: varchar("question_end", { length: 256 }),
+//     type: varchar("type", { enum: ["normal", "ongoing"] }).notNull(),
+//     collectionId: integer("collectionId")
+//       .notNull()
+//       .references(() => questionCollections.id),
+//     createdAt: timestamp("created_at", {
+//       mode: "date",
+//       withTimezone: true,
+//     })
+//       .default(sql`CURRENT_TIMESTAMP`)
+//       .notNull(),
+//     updatedAt: timestamp("updated_at", {
+//       mode: "date",
+//       withTimezone: true,
+//     }).default(sql`CURRENT_TIMESTAMP`),
+//   },
+//   (question) => ({
+//     questionCollectionIdIdx: index("question_collection_id_idx").on(
+//       question.collectionId,
+//     ),
+//   }),
+// );

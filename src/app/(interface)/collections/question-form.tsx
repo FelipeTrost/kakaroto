@@ -18,13 +18,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { type UseFieldArrayReturn, type UseFormReturn } from "react-hook-form";
 import { type z } from "zod";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 import {
   AccordionContent,
@@ -36,7 +29,7 @@ import { FaAngleDown, FaPlus } from "react-icons/fa";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
-export default function QuestionDialog({
+export default function QuestionForm({
   form,
   idx,
   fieldArray,

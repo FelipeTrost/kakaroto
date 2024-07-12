@@ -8,6 +8,7 @@ import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { useTransition } from "react";
 import { deleteCollection as _deleteCollection } from "@/server/db/actions";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Collection({
   collection,
@@ -25,7 +26,7 @@ export default function Collection({
   }
 
   return (
-    <Card>
+    <Card className="max-w-[85ch]">
       <CardHeader className="flex flex-row justify-between gap-4">
         <div>
           <CardTitle className="text-xl">{collection.title}</CardTitle>
@@ -34,7 +35,9 @@ export default function Collection({
 
         <div className="flex flex-row gap-4">
           <Button variant="secondary">
-            <MdEdit className="h-3 w-3" />
+            <Link href={`/collections/${collection.id}`}>
+              <MdEdit className="h-3 w-3" />
+            </Link>
           </Button>
           <Button onClick={deleteCollection}>
             <MdDelete className="h-3 w-3" />

@@ -14,6 +14,6 @@ export const cardSchema = z.discriminatedUnion("type", [
 
 export const createCollectionSchema = z.object({
   title: z.string().min(1).max(255),
-  description: z.string().min(1).max(1_000),
+  description: z.string().min(1).max(1_000).nullable().catch(null),
   cards: z.array(cardSchema).min(1),
 });

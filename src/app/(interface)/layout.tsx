@@ -25,7 +25,7 @@ export default async function RootLayout({ children }: PropsWithChildren) {
               My collections
             </Link>
             <Link
-              href="/create-collection"
+              href="/collections/new"
               className={`${cn(buttonVariants({ variant: "link" }))}`}
             >
               Create collection
