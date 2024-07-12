@@ -35,14 +35,14 @@ import { type UserResponse } from "@/server/user-response";
 export default function CollectionForm({
   defaultValues,
   onSubmit,
-  submitText,
+  update,
 }: {
   onSubmit: (
     values: z.infer<typeof createCollectionSchema>,
     id: number,
   ) => Promise<UserResponse>;
   defaultValues?: z.infer<typeof createCollectionSchema>;
-  submitText?: string;
+  update?: boolean;
 }) {
   const [submitting, startSubmitTransition] = useTransition();
   const params = useParams<{ collectionId: string }>();
@@ -115,7 +115,9 @@ export default function CollectionForm({
             <TabsContent value="info">
               <Card>
                 <CardHeader>
-                  <CardTitle>Create Card Collection</CardTitle>
+                  <CardTitle>
+                    {update ? "Update Collection" : "Create Card Collection"}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <FormField
@@ -188,7 +190,7 @@ export default function CollectionForm({
               "animate-bounce": submitting,
             })}
           >
-            {submitText ?? "Create Collection"}
+            {update ? "Update Collection" : "Create Collection"}
           </Button>
         </form>
       </div>

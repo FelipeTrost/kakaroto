@@ -36,7 +36,7 @@ export default async function EditCollectionPage({
         <CollectionForm
           onSubmit={updateCollection}
           defaultValues={collection as z.infer<typeof createCollectionSchema>}
-          submitText="Update Collection"
+          update
         />
       </section>
     </main>
