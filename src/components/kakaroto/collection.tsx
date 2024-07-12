@@ -30,15 +30,17 @@ export default function Collection({
       <CardHeader className="flex flex-row justify-between gap-4">
         <div>
           <CardTitle className="text-xl">{collection.title}</CardTitle>
-          {formatDistanceToNow(collection.updatedAt)}
+          <p className="text-slate-500">
+            Updated {formatDistanceToNow(collection.updatedAt)} ago
+          </p>
         </div>
 
         <div className="flex flex-row gap-4">
-          <Button variant="secondary">
-            <Link href={`/collections/${collection.id}`}>
+          <Link href={`/collections/${collection.id}`}>
+            <Button variant="secondary">
               <MdEdit className="h-3 w-3" />
-            </Link>
-          </Button>
+            </Button>
+          </Link>
           <Button onClick={deleteCollection}>
             <MdDelete className="h-3 w-3" />
           </Button>
