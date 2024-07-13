@@ -6,7 +6,7 @@ import { createCollectionSchema } from "./zod-schemas";
 import { getServerAuthSession } from "../auth";
 import { userResponse } from "../user-response";
 import type { z } from "zod";
-import { and, eq } from "drizzle-orm";
+import { and, eq, ilike, or } from "drizzle-orm";
 
 export async function createColection(
   input: z.infer<typeof createCollectionSchema>,
@@ -80,9 +80,7 @@ export async function updateCollection(
     );
 
   try {
-    console.log("updating");
-
-    const a = await db
+    await db
       .update(questionCollections)
       .set({
         description: collectionData?.description,
@@ -91,9 +89,34 @@ export async function updateCollection(
         updatedAt: new Date(),
       })
       .where(eq(questionCollections.id, id));
-    console.log(a);
 
     return userResponse("sucess");
+  } catch (error) {
+    console.error(error);
+    return userResponse("error");
+  }
+}
+
+export async function getCollesctions(
+  query: string,
+  pagination: {
+    page: number;
+    limit: number;
+  },
+) {
+  try {
+    const collections = await db
+      .select()
+      .from(questionCollections)
+      .where(
+        or(
+          ilike(questionCollections.title, `%${query}%`),
+          ilike(questionCollections.description, `%${query}%`),
+        ),
+      )
+      .limit(pagination.limit);
+
+    return userResponse("sucess", collections);
   } catch (error) {
     console.error(error);
     return userResponse("error");
