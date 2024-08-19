@@ -105,7 +105,7 @@ export default function CollectionForm({
                 )}
               </TabsTrigger>
               <TabsTrigger value="questions" className="relative">
-                Questions
+                Challenges
                 {questionsError && (
                   <MdInfo className="absolute right-[-.25rem] top-[-.25rem] z-50 fill-red-800 text-lg" />
                 )}

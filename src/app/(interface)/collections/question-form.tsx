@@ -66,6 +66,7 @@ export default function QuestionForm({
         rightNode={
           <Button
             variant="outline"
+            type="button"
             onClick={() => fieldArray.remove(idx)}
             disabled={fieldArray.fields.length === 1}
             className="ml-4"
@@ -76,11 +77,11 @@ export default function QuestionForm({
       >
         <div className="flex flex-grow items-center justify-between gap-4 overflow-hidden pr-4">
           <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-            Question {idx + 1}
+            Challenge {idx + 1}
           </span>
 
           {form.formState.errors.cards?.[idx] && (
-            <MdInfo className="absolute right-[-.25rem] top-[-.25rem] z-50 fill-red-800 text-lg" />
+            <MdInfo className="absolute right-[-.5rem] top-[.3rem] z-50 fill-red-800 text-lg" />
           )}
         </div>
       </AccordionTrigger>
@@ -106,12 +107,13 @@ export default function QuestionForm({
           control={form.control}
           name={`cards.${idx}.question`}
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="mb-8">
               <FormLabel>Challenge</FormLabel>
 
               <div className="!mb-2 flex w-full max-w-full flex-row">
                 <Button
                   variant="secondary"
+                  type="button"
                   onClick={() => addUser()}
                   className={cn([
                     {
@@ -127,6 +129,7 @@ export default function QuestionForm({
                     <DropdownMenuTrigger>
                       <Button
                         variant="secondary"
+                        type="button"
                         disabled={parsedQuestion.nPlayers === 0}
                         className="fadeIn rounded-l-none duration-300"
                       >
@@ -158,8 +161,8 @@ export default function QuestionForm({
 
         {parsedQuestion.nPlayers > 0 && (
           <>
-            <h2 className="mt-2">Question preview:</h2>
-            <div className="min-h-[4ch] w-full rounded-md border px-3 py-2 text-base ring-ring ring-offset-2 ring-offset-background">
+            <h2 className="mt-2">Challenge preview:</h2>
+            <div className="mb-8 min-h-[4ch] w-full rounded-md border px-3 py-2 text-base ring-ring ring-offset-2 ring-offset-background">
               {parsedQuestion.parts.map((part, idx) => {
                 if (typeof part === "string") return part;
                 return <Badge key={idx}>Player {part}</Badge>;
@@ -170,13 +173,12 @@ export default function QuestionForm({
 
         {fieldValue?.type === "ongoing" && (
           <>
-            <div className="m-auto my-2 w-[95%] border-[0.5px] border-gray-500" />
             <FormField
               control={form.control}
               name={`cards.${idx}.questionEnd`}
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Question End</FormLabel>
+                <FormItem className="mb-8">
+                  <FormLabel>Challenge End</FormLabel>
                   <FormControl>
                     <Textarea placeholder="" {...field} />
                   </FormControl>
