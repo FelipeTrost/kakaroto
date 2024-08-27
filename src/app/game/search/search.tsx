@@ -14,8 +14,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import Loading from "./loading";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import CollectionSkeleton from "@/components/kakaroto/loading";
 
 type DataType = Exclude<
   Awaited<ReturnType<typeof getCollesctions>>,
@@ -82,7 +82,7 @@ export function SearchResults({ data }: { data?: DataType }) {
     [pathname, query, router],
   );
 
-  if (!data) return <Loading />;
+  if (!data) return <CollectionSkeleton />;
 
   if (data.length === 0)
     return (

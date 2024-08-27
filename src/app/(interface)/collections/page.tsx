@@ -5,8 +5,10 @@ import { questionCollections } from "@/server/db/schema";
 import { desc } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import CollectionActions from "./collection-actions";
+import { Suspense } from "react";
+import CollectionSkeleton from "@/components/kakaroto/loading";
 
-export default async function CreateCollectionPage() {
+async function Collections() {
   const session = await getServerAuthSession();
   const user = session?.user;
 
@@ -20,21 +22,29 @@ export default async function CreateCollectionPage() {
   // TODO: pagination
 
   return (
+    <div className="flex flex-col gap-4">
+      {collections.map((collection) => (
+        <Collection
+          key={collection.id}
+          collection={collection}
+          rightNode={<CollectionActions collection={collection} />}
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function CreateCollectionPage() {
+  return (
     <main>
-      <section className="container pt-4 lg:pt-20">
+      <section className="container pb-10 pt-4 lg:pt-20">
         <h2 className="mb-8 text-4xl font-extrabold leading-none tracking-tight text-gray-900 dark:text-white md:text-5xl lg:text-6xl">
           Your collections
         </h2>
 
-        <div className="flex flex-col gap-4">
-          {collections.map((collection) => (
-            <Collection
-              key={collection.id}
-              collection={collection}
-              rightNode={<CollectionActions collection={collection} />}
-            />
-          ))}
-        </div>
+        <Suspense fallback={<CollectionSkeleton />}>
+          <Collections />
+        </Suspense>
       </section>
     </main>
   );

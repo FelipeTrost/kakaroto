@@ -2,12 +2,12 @@ import { getCollesctions } from "@/server/db/actions";
 import Search from "./search";
 import { z } from "zod";
 import { Suspense } from "react";
-import Loading from "./loading";
 import {
   HydrationBoundary,
   QueryClient,
   dehydrate,
 } from "@tanstack/react-query";
+import CollectionSkeleton from "@/components/kakaroto/loading";
 
 async function Collections({ page, query }: { page: number; query: string }) {
   const queryClient = new QueryClient();
@@ -56,7 +56,7 @@ export default function SearchPage({
         Search collections to play
       </h1>
 
-      <Suspense fallback={<Loading />}>
+      <Suspense fallback={<CollectionSkeleton />}>
         <Collections page={page} query={query} />
       </Suspense>
     </main>
