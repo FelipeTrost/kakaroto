@@ -4,6 +4,7 @@ import { db } from "@/server/db";
 import { questionCollections } from "@/server/db/schema";
 import { desc } from "drizzle-orm";
 import { redirect } from "next/navigation";
+import CollectionActions from "./collection-actions";
 
 export default async function CreateCollectionPage() {
   const session = await getServerAuthSession();
@@ -16,6 +17,8 @@ export default async function CreateCollectionPage() {
     orderBy: desc(questionCollections.updatedAt),
   });
 
+  // TODO: pagination
+
   return (
     <main>
       <section className="container pt-4 lg:pt-20">
@@ -25,7 +28,11 @@ export default async function CreateCollectionPage() {
 
         <div className="flex flex-col gap-4">
           {collections.map((collection) => (
-            <Collection key={collection.id} collection={collection} />
+            <Collection
+              key={collection.id}
+              collection={collection}
+              rightNode={<CollectionActions collection={collection} />}
+            />
           ))}
         </div>
       </section>
