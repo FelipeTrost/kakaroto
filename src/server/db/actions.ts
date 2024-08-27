@@ -5,8 +5,8 @@ import { questionCollections } from "./schema";
 import { createCollectionSchema } from "./zod-schemas";
 import { getServerAuthSession } from "../auth";
 import { userResponse } from "../user-response";
-import type { z } from "zod";
-import { and, eq, ilike, or } from "drizzle-orm";
+import { type z } from "zod";
+import { and, eq, ilike, or, sql } from "drizzle-orm";
 
 export async function createColection(
   input: z.infer<typeof createCollectionSchema>,
@@ -97,24 +97,32 @@ export async function updateCollection(
   }
 }
 
+const limit = 15;
+
+/** Indexing starts at 1 */
 export async function getCollesctions(
   query: string,
   pagination: {
     page: number;
-    limit: number;
   },
 ) {
+  const offset = Math.max(pagination.page - 1, 0) * limit;
+
   try {
     const collections = await db
-      .select()
+      .select({
+        collection: questionCollections,
+        count: sql`count(*) OVER()`,
+      })
       .from(questionCollections)
+      .offset(offset)
       .where(
         or(
           ilike(questionCollections.title, `%${query}%`),
           ilike(questionCollections.description, `%${query}%`),
         ),
       )
-      .limit(pagination.limit);
+      .limit(limit);
 
     return userResponse("sucess", collections);
   } catch (error) {

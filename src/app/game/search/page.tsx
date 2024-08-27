@@ -1,24 +1,54 @@
-"use client";
+import { getCollesctions } from "@/server/db/actions";
+import Search from "./search";
+import { z } from "zod";
+import { Suspense } from "react";
+import Loading from "./loading";
+import {
+  HydrationBoundary,
+  QueryClient,
+  dehydrate,
+} from "@tanstack/react-query";
 
-import { Suspense, useState } from "react";
-import { SearchResults } from "./search-results";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
+async function Collections({ page, query }: { page: number; query: string }) {
+  const queryClient = new QueryClient();
 
-function SkeletonCard() {
+  await queryClient.prefetchQuery({
+    queryKey: ["posts"],
+    queryFn: async () => {
+      const initialData = await getCollesctions(query, {
+        page: page,
+      });
+      // TODO: error boundary
+      if (initialData.type === "error") throw initialData;
+
+      return initialData.message;
+    },
+  });
+
   return (
-    <div className="space-y-2">
-      <Skeleton className="h-20 w-full" />
-      <Skeleton className="h-15 w-full" />
-      <Skeleton className="h-20 w-full" />
-    </div>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <Search />
+    </HydrationBoundary>
   );
 }
 
-export default function SearchPage() {
-  // TODO: debounce query
-  const [query, setQuery] = useState("");
-  const [page, setPage] = useState({ page: 1, limit: 20 });
+const paramsSchema = z.object({
+  page: z.coerce.number().default(0),
+  query: z.preprocess(
+    (arg: unknown) => (typeof arg === "string" ? decodeURIComponent(arg) : arg),
+    z.string().default(""),
+  ),
+});
+
+export default function SearchPage({
+  searchParams: _searchParams,
+}: {
+  searchParams: unknown;
+}) {
+  const searchParams = paramsSchema.safeParse(_searchParams);
+
+  const page = searchParams.success ? searchParams.data.page : 1;
+  const query = searchParams.success ? searchParams.data.query : "";
 
   return (
     <main className="m-auto w-[90%] max-w-[70ch] gap-4 pb-12 pt-4 lg:items-center lg:gap-8 lg:py-10">
@@ -26,14 +56,8 @@ export default function SearchPage() {
         Search collections to play
       </h1>
 
-      <Input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="mb-6"
-      />
-
-      <Suspense fallback={<SkeletonCard />}>
-        <SearchResults query={query} pagination={{ page: 1, limit: 10 }} />
+      <Suspense fallback={<Loading />}>
+        <Collections page={page} query={query} />
       </Suspense>
     </main>
   );
