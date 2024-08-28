@@ -5,17 +5,9 @@ import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { getCollesctions } from "@/server/db/actions";
 import Collection from "@/components/kakaroto/collection";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import CollectionSkeleton from "@/components/kakaroto/loading";
+import FullPagination from "@/components/kakaroto/full-pagination";
 
 type DataType = Exclude<
   Awaited<ReturnType<typeof getCollesctions>>,
@@ -62,8 +54,6 @@ export default function Search() {
   );
 }
 
-const pagesSpan = 2;
-const limit = 15;
 export function SearchResults({ data }: { data?: DataType }) {
   const searchParams = useSearchParams();
   const query = searchParams.get("query") ?? "";
@@ -71,16 +61,13 @@ export function SearchResults({ data }: { data?: DataType }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const setPage = useCallback(
-    (page: number) => {
-      const params = new URLSearchParams({
-        query,
-        page: String(page),
-      });
-      router.replace(pathname + "?" + params.toString());
-    },
-    [pathname, query, router],
-  );
+  const setPage = (page: number) => {
+    const params = new URLSearchParams({
+      query,
+      page: String(page),
+    });
+    router.replace(pathname + "?" + params.toString());
+  };
 
   if (!data) return <CollectionSkeleton />;
 
@@ -91,22 +78,7 @@ export function SearchResults({ data }: { data?: DataType }) {
       </h1>
     );
 
-  const count = ((data[0]?.count as number) || 0) / limit;
-
-  // Pagination is not that good, but i'm happy with it
-  const startPage = Math.max(page - pagesSpan + 1, 2);
-  const prev = [];
-  for (
-    let i = startPage;
-    i <= startPage + 2 * pagesSpan - 1 && i <= count;
-    i++
-  ) {
-    prev.push(
-      <PaginationItem onClick={() => setPage(i)}>
-        <PaginationLink isActive={i === page}>{i}</PaginationLink>
-      </PaginationItem>,
-    );
-  }
+  const count = (data[0]?.count as number) || 0;
 
   return (
     <>
@@ -118,42 +90,8 @@ export function SearchResults({ data }: { data?: DataType }) {
           />
         ))}
       </div>
-      <Pagination className="mt-4">
-        <PaginationContent>
-          <PaginationItem onClick={() => setPage(Math.max(1, page - 1))}>
-            <PaginationPrevious href="#" />
-          </PaginationItem>
 
-          <PaginationItem onClick={() => setPage(1)}>
-            <PaginationLink isActive={page === 1}>1</PaginationLink>
-          </PaginationItem>
-
-          {prev}
-
-          {count > pagesSpan && page + pagesSpan < count && (
-            <>
-              <PaginationItem>
-                <PaginationEllipsis />
-              </PaginationItem>
-
-              <PaginationItem>
-                <PaginationLink
-                  isActive={page === count}
-                  onClick={() => setPage(1)}
-                >
-                  {count}
-                </PaginationLink>
-              </PaginationItem>
-            </>
-          )}
-
-          <PaginationItem>
-            <PaginationNext
-              onClick={() => setPage(Math.min(count, page + 1))}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      <FullPagination setPage={setPage} itemCount={count} currentPage={page} />
     </>
   );
 }
