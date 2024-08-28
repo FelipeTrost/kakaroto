@@ -13,7 +13,7 @@ async function Collections({ page, query }: { page: number; query: string }) {
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: ["posts"],
+    queryKey: ["collections", query, page],
     queryFn: async () => {
       const initialData = await getCollesctions(query, {
         page: page,
