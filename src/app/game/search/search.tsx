@@ -1,6 +1,5 @@
 "use client";
 
-import { useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { getCollesctions } from "@/server/db/actions";
@@ -8,6 +7,8 @@ import Collection from "@/components/kakaroto/collection";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import CollectionSkeleton from "@/components/kakaroto/loading";
 import FullPagination from "@/components/kakaroto/full-pagination";
+import { useState } from "react";
+import { useDebounce } from "@/lib/hooks";
 
 type DataType = Exclude<
   Awaited<ReturnType<typeof getCollesctions>>,
@@ -17,10 +18,12 @@ type DataType = Exclude<
 export default function Search() {
   // TODO: debounce query
   const searchParams = useSearchParams();
-  const query = searchParams.get("query") ?? "";
   const page = Number(searchParams.get("page")) || 0;
   const router = useRouter();
   const pathname = usePathname();
+
+  const [search, setSearch] = useState(searchParams.get("query") ?? "");
+  const query = useDebounce(search);
 
   const { data } = useQuery({
     queryFn: async () => {
@@ -39,8 +42,9 @@ export default function Search() {
   return (
     <>
       <Input
-        value={query}
+        value={search}
         onChange={(e) => {
+          setSearch(e.target.value);
           const params = new URLSearchParams({
             query: e.target.value,
           });
