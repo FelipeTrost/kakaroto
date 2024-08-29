@@ -1,8 +1,8 @@
-FROM node:20-alpine
+FROM oven/bun:1 AS base
 RUN mkdir -p /app
 WORKDIR /app
 COPY . .
-RUN npm install
-RUN npm run build
+RUN bun install
+RUN bun run build
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["bun", "start"]
