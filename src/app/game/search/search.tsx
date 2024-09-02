@@ -9,6 +9,9 @@ import CollectionSkeleton from "@/components/kakaroto/loading";
 import FullPagination from "@/components/kakaroto/full-pagination";
 import { useState } from "react";
 import { useDebounce } from "@/lib/hooks";
+import { CollectionSelectionDrawer } from "./collection-selection";
+import { Button } from "@/components/ui/button";
+import { useGameStateStore } from "@/lib/game-state-store";
 
 type DataType = Exclude<
   Awaited<ReturnType<typeof getCollesctions>>,
@@ -54,6 +57,8 @@ export default function Search() {
       />
 
       <SearchResults data={data} />
+
+      <CollectionSelectionDrawer />
     </>
   );
 }
@@ -64,6 +69,8 @@ export function SearchResults({ data }: { data?: DataType }) {
   const page = Number(searchParams.get("page")) || 0;
   const router = useRouter();
   const pathname = usePathname();
+
+  const addChallenge = useGameStateStore.use.addChallenge();
 
   const setPage = (page: number) => {
     const params = new URLSearchParams({
@@ -91,6 +98,11 @@ export function SearchResults({ data }: { data?: DataType }) {
           <Collection
             key={collection.collection.id}
             collection={collection.collection}
+            rightNode={
+              <Button onClick={() => addChallenge(collection.collection)}>
+                Add
+              </Button>
+            }
           />
         ))}
       </div>

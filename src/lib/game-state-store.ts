@@ -1,13 +1,19 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { useState, useEffect } from "react";
+import { type InferSelectModel } from "drizzle-orm";
+import { type questionCollections } from "@/server/db/schema";
+
+type Challenge = InferSelectModel<typeof questionCollections>;
 
 type GameStateStore = {
   started: boolean;
   roundNumber: number;
   totalRounds: number;
-  questions: unknown[];
-  setQuestions: (questions: unknown[]) => void;
+  challenges: Challenge[];
+  setChallenges: (challenges: Challenge[]) => void;
+  addChallenge: (challenges: Challenge) => void;
+  deleteChallenge: (id: Challenge["id"]) => void;
   nextRound: () => void;
   _hydrated: boolean;
 };
@@ -19,8 +25,10 @@ const defaultGameState = {
   started: false,
   roundNumber: 0,
   totalRounds: 0,
-  questions: [],
-  setQuestions: noop,
+  challenges: [],
+  setChallenges: noop,
+  addChallenge: noop,
+  deleteChallenge: noop,
   nextRound: noop,
   _hydrated: false,
 } satisfies GameStateStore;
@@ -31,8 +39,17 @@ const gameStateStore = create<GameStateStore>()(
       started: false,
       roundNumber: 0,
       totalRounds: 0,
-      questions: [],
-      setQuestions: (questions) => set({ questions }),
+      challenges: [],
+      setChallenges: (challenges) => set({ challenges }),
+      addChallenge: (challenge) =>
+        set((prev) => {
+          if (prev.challenges.some((c) => c.id === challenge.id)) return prev;
+          return { challenges: prev.challenges.concat(challenge) };
+        }),
+      deleteChallenge: (id) =>
+        set((prev) => {
+          return { challenges: prev.challenges.filter((c) => c.id !== id) };
+        }),
       nextRound: () => set(() => ({ roundNumber: get().roundNumber + 1 })),
       _hydrated: false,
     }),
@@ -70,11 +87,16 @@ useGameStateStore.use = {} as {
   [K in keyof GameStateStore]: () => GameStateStore[K];
 };
 
-type keys = ["started", "roundNumber", "totalRounds", "questions", "_hydrated"];
-const storeKeys = Object.keys(defaultGameState) as keys;
+const storeKeys = Object.keys(
+  defaultGameState,
+) as unknown as keyof GameStateStore;
 
-for (const preference of storeKeys) {
+for (const _preference of storeKeys) {
+  const preference = _preference as keyof GameStateStore;
   //@ts-expect-error cannot get this to work
-  useGameStateStore.use[preference] = () =>
-    gameStateStore((store) => store[preference]);
+  useGameStateStore.use[preference] = () => {
+    return gameStateStore(
+      (store) => store[preference] as GameStateStore[typeof preference],
+    );
+  };
 }
