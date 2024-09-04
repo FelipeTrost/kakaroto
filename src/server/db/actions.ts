@@ -21,7 +21,7 @@ export async function createColection(
     );
 
   try {
-    const a = await db
+    await db
       .insert(questionCollections)
       .values({
         userId: session.user.id,
@@ -32,8 +32,6 @@ export async function createColection(
         updatedAt: new Date(),
         cards: collectionData.cards,
       })
-      .returning({ insertedId: questionCollections.id });
-    console.log(a);
 
     return userResponse("sucess");
   } catch (error) {
