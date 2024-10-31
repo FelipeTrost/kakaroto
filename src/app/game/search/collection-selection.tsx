@@ -1,6 +1,7 @@
+"use client";
+
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,8 +21,6 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useMediaQuery } from "@/lib/hooks";
 import { Card } from "@/components/ui/card";
 import Collection from "@/components/kakaroto/collection";
@@ -37,8 +36,20 @@ export function CollectionSelectionDrawer() {
   );
 
   const trigger = (
-    <Card className="sticky bottom-4 mt-4 w-full bg-primary px-4 py-4 text-primary-foreground">
-      {selectedCollections} selected
+    <Card className="sticky bottom-4 mt-4 flex w-full items-center justify-between bg-primary px-4 py-3 text-primary-foreground">
+      {selectedCollections > 0 ? (
+        <>
+          <div>{selectedCollections} selected</div>
+          <Button variant="link" className="text-primary-foreground">
+            Start
+          </Button>
+        </>
+      ) : (
+        <>
+          No collections selected
+          <Button variant="link" className="w-0"></Button>
+        </>
+      )}
     </Card>
   );
 

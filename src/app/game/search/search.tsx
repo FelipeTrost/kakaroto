@@ -57,8 +57,6 @@ export default function Search() {
       />
 
       <SearchResults data={data} />
-
-      <CollectionSelectionDrawer />
     </>
   );
 }
@@ -71,6 +69,8 @@ export function SearchResults({ data }: { data?: DataType }) {
   const pathname = usePathname();
 
   const addChallenge = useGameStateStore.use.addChallenge();
+  const deleteChallenge = useGameStateStore.use.deleteChallenge();
+  const collectionSelected = useGameStateStore((state) => state.challenges);
 
   const setPage = (page: number) => {
     const params = new URLSearchParams({
@@ -99,9 +99,20 @@ export function SearchResults({ data }: { data?: DataType }) {
             key={collection.collection.id}
             collection={collection.collection}
             rightNode={
-              <Button onClick={() => addChallenge(collection.collection)}>
-                Add
-              </Button>
+              collectionSelected.some(
+                (c) => c.id === collection.collection.id,
+              ) ? (
+                <Button
+                  onClick={() => deleteChallenge(collection.collection.id)}
+                  variant="outline"
+                >
+                  Remove
+                </Button>
+              ) : (
+                <Button onClick={() => addChallenge(collection.collection)}>
+                  Add
+                </Button>
+              )
             }
           />
         ))}
