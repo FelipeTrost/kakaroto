@@ -23,10 +23,13 @@ type GameStateStore = {
   setChallenges: (challenges: Collection[]) => void;
   addChallenge: (challenges: Collection) => void;
   deleteChallenge: (id: Collection["id"]) => void;
-  _gameCards: Card[];
+  _gameCards: (Card & { id: number })[];
+  cardsLeft: (Card & { id: number })[];
+  playedCards: number[],
   nextRound: () => void;
   _hydrated: boolean;
   setGameState: (s: GameState) => void | string;
+  checkPlayersAndSetCards: () => void | string;
   playedChallenges: Collection[];
   nextChallenge: () => void;
   currentChallenge: (Card & { challengeDisplay: string }) | undefined;
@@ -54,11 +57,14 @@ const defaultGameState = {
   nextRound: noop,
   _hydrated: false,
   setGameState: noop,
+  checkPlayersAndSetCards: noop,
   playedChallenges: [],
   nextChallenge: noop,
   currentChallenge: undefined,
   ongoingChallenges: [],
   _gameCards: [],
+  cardsLeft: [],
+  playedCards: [],
   reset: noop,
 } satisfies GameStateStore;
 
@@ -66,6 +72,8 @@ const gameStateStore = create<GameStateStore>()(
   persist(
     (set, get) => ({
       _gameCards: [],
+      cardsLeft: [],
+      playedCards: [],
       state: "none",
       roundNumber: 0,
       totalRounds: 0,
@@ -97,25 +105,45 @@ const gameStateStore = create<GameStateStore>()(
         }),
       nextRound: () => set(() => ({ roundNumber: get().roundNumber + 1 })),
       _hydrated: false,
+      /**
+        * Checks players and sets game cards to what is feasible 
+        * 
+        * TODO: this drops cards, and we should maybe add them back once more players are available again
+       */
+      checkPlayersAndSetCards() {
+        const state = get();
+        const nPlayers = state.players.length;
+
+        if (nPlayers < 2) return "Not enough players to start the game.";
+
+        // get game cards
+        let gameCards = state._gameCards;
+        if (state.state !== "started") {
+          gameCards = []
+          let id = 0;
+          for (const collection of state.selectedCollections)
+            for (const card of collection.cards)
+              gameCards.push({ ...card, id: id++ });
+
+          set({ selectedCollections: [], _gameCards: gameCards })
+        }
+        console.log("gameCards", gameCards);
+
+        const compatibleChallenges = [];
+        for (const card of gameCards)
+          if (!state.playedCards.find(n => n === card.id) && parseQuestion(card.question).nPlayers <= nPlayers)
+            compatibleChallenges.push(card);
+
+        set({
+          cardsLeft: compatibleChallenges,
+          selectedCollections: [],
+        });
+      },
       setGameState: (s) => {
         if (s === "started") {
-          const compatibleChallenges = [];
-          const nPlayers = get().players.length;
-
-          if (nPlayers < 2) return "Not enough players to start the game.";
-
-          for (const collection of get().selectedCollections) {
-            for (const card of collection.cards) {
-              if (parseQuestion(card.question).nPlayers <= nPlayers)
-                compatibleChallenges.push(card);
-            }
-          }
-
-          set({
-            state: "started",
-            _gameCards: compatibleChallenges,
-            selectedCollections: [],
-          });
+          const error = get().checkPlayersAndSetCards();
+          if (error) return error;
+          set({ state: "started" })
           get().nextChallenge();
         } else {
           set({ state: s });
@@ -133,13 +161,10 @@ const gameStateStore = create<GameStateStore>()(
           }
         }
 
-        // TODO: use ended challenge
-
-
         // Pick random card
-        const _gameCards = state._gameCards;
-        const ch_idx = Math.floor(_gameCards.length * Math.random());
-        const challenge = _gameCards[ch_idx];
+        const cardsLeft = state.cardsLeft;
+        const ch_idx = Math.floor(cardsLeft.length * Math.random());
+        const challenge = cardsLeft[ch_idx];
         // take a challenge end if there arent more cards available
         if ((!challenge && state.ongoingChallenges.length > 0))
           endedChallengeIdx = 0;
@@ -164,8 +189,9 @@ const gameStateStore = create<GameStateStore>()(
 
         //remove selected card
         set({
-          _gameCards: state._gameCards.toSpliced(ch_idx, 1),
+          cardsLeft: state.cardsLeft.toSpliced(ch_idx, 1),
         });
+        state.playedCards.push(challenge.id);
 
         // normal challenge
         if (challenge.type === "normal") {
@@ -183,7 +209,7 @@ const gameStateStore = create<GameStateStore>()(
           Math.floor(
             Math.random() * (challengeMaxounds - challengeMinRounds),
           ) + challengeMinRounds;
-        roundsToChallengeEnd = Math.min(roundsToChallengeEnd, state._gameCards.length / 1.5);
+        roundsToChallengeEnd = Math.min(roundsToChallengeEnd, state.cardsLeft.length / 1.5);
 
         set({
           currentChallenge: { ...challenge, challengeDisplay: challengeDisplay[0]! },
@@ -205,6 +231,9 @@ const gameStateStore = create<GameStateStore>()(
           ongoingChallenges: [],
           state: "none",
           currentChallenge: undefined,
+          playedCards: [],
+          _gameCards: [],
+          cardsLeft: [],
         });
       },
     }),
