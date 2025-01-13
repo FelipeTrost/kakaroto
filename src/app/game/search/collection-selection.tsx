@@ -27,25 +27,29 @@ import Collection from "@/components/kakaroto/collection";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGameStateStore } from "@/lib/game-state-store";
 import { DeleteIcon } from "@/components/kakaroto/icons";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function CollectionSelectionDrawer() {
   const [open, setOpen] = React.useState(false);
+  const router = useRouter();
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const selectedCollections = useGameStateStore(
     (state) => state.selectedCollections.length,
   );
+  const resetGameStore = useGameStateStore.use.reset()
 
   const trigger = (
     <Card className="sticky bottom-4 mt-4 flex w-full items-center justify-between bg-primary px-4 py-3 text-primary-foreground">
       {selectedCollections > 0 ? (
         <>
           <div>{selectedCollections} selected</div>
-          <Link href="/game">
-            <Button variant="link" className="text-primary-foreground">
-              Start
-            </Button>
-          </Link>
+
+          <Button variant="link" className="text-primary-foreground" onMouseDown={() => {
+            resetGameStore();
+            router.push("/game");
+          }}>
+            Start
+          </Button>
         </>
       ) : (
         <>
