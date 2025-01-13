@@ -86,7 +86,7 @@ export function SearchResults({ data }: { data?: DataType }) {
 
   if (data.length === 0)
     return (
-      <h1 className="prose text-left text-lg font-bold">
+      <h1 className="text-left text-lg font-bold">
         No collections found
       </h1>
     );
