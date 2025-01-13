@@ -12,6 +12,7 @@ import { IoCloseOutline } from "react-icons/io5";
 import { AnimatePresence } from "motion/react"
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
+import Link from "next/link";
 
 function PlayerManagement() {
   const [playerInput, setPlayerInput] = useState("");
@@ -53,12 +54,12 @@ function PlayerManagement() {
           <Badge
             variant="secondary"
             key={player}
-            className="w-fit flex-grow-0 px-4"
+            className="w-fit flex-grow-0 px-4 text-2xl flex items-center"
           >
-            {player}
-            <Button onClick={() => removePlayer(player)} variant="secondary">
+            <span>{player}</span>
+            <button onClick={() => removePlayer(player)} className="ml-2">
               <IoCloseOutline />
-            </Button>
+            </button>
           </Badge>
         ))}
       </div>
@@ -89,8 +90,6 @@ function Game() {
     <Button onClick={reset}>Reset</Button>
     <h1>No more challenges</h1></>;
 
-  const parsed = parseQuestion(currentChallenge.question);
-
   const divVariants = {
     hidden: {
       opacity: 0,
@@ -118,27 +117,44 @@ function Game() {
   };
 
   return (
-    <>
-      <Button onClick={reset}>Reset</Button>
-      <Button onClick={nextChallenge}>Next challenge</Button>
-      <AnimatePresence>
-        <motion.div
-          key={currentChallenge?.challengeDisplay}
-          variants={divVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-        >
-          <Card>
-            <CardContent>
-              <h2>{currentChallenge?.type}</h2>
-              <h2>{currentChallenge?.challengeDisplay}</h2>
-            </CardContent>
-          </Card>
-        </motion.div>
-      </AnimatePresence>
-    </>
+    <div className="h-[100svh] flex flex-col justify-between">
+      <div className="h-[70%] flex items-center">
+        <AnimatePresence>
+          <motion.div
+            key={currentChallenge?.challengeDisplay}
+            variants={divVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="w-full"
+          >
+            <Card className="w-full p-10">
+              <CardContent>
+                <span className="text-xl m-0">{currentChallenge?.challengeDisplay}</span>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </AnimatePresence></div>
+
+      <div className="flex gap-2 py-4">
+        <Button onClick={nextChallenge}>Next card</Button>
+      </div>
+    </div>
   );
+}
+
+function FinishedScreen() {
+  return (
+    <div className="h-[100svh] flex items-center justify-center">
+      <div className="text-center prose">
+        <h1 className="text-3xl font-bold text-foreground">That's it 🎉</h1>
+        <p className="text-muted-foreground">Hope you had fun</p>
+        <Link href="/game/search">
+          <Button variant="default" >New Game</Button>
+        </Link>
+      </div>
+    </div>
+  )
 }
 
 export default function GamePage() {
@@ -154,16 +170,6 @@ export default function GamePage() {
   }, [router]);
 
   if (state === "none") return <PlayerManagement />;
-  if (state === "finished")
-    return (
-      <Button
-        onClick={() => {
-          useGameStateStore.getState().reset();
-          router.push("/game/search");
-        }}
-      >
-        New Game
-      </Button>
-    );
+  if (state === "finished") return <FinishedScreen />;
   else return <Game />;
 }
