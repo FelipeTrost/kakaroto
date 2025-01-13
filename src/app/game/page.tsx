@@ -91,8 +91,8 @@ function Game() {
     <h1>No more challenges</h1></>;
 
   return (
-    <div className="h-[100svh] flex flex-col justify-between">
-      <div className="h-[70%] flex items-center">
+    <section className="flex flex-col justify-between flex-grow">
+      <div className="flex items-center flex-grow">
         <AnimatePresence>
           <BouncyDiv
             key={currentChallenge?.challengeDisplay}
@@ -104,19 +104,20 @@ function Game() {
               </CardContent>
             </Card>
           </BouncyDiv>
-        </AnimatePresence></div>
+        </AnimatePresence>
+      </div>
 
       <div className="flex gap-2 py-4">
         <Button onClick={nextChallenge}>Next card</Button>
       </div>
-    </div>
+    </section>
   );
 }
 
 function FinishedScreen() {
   return (
     <div className="h-[100svh] flex items-center justify-center">
-      <div className="text-center prose">
+      <div className="text-center prose mt-[-15%]">
         <h1 className="text-3xl font-bold text-foreground">That's it 🎉</h1>
         <p className="text-muted-foreground">Hope you had fun</p>
         <Link href="/game/search">

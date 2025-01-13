@@ -9,7 +9,6 @@ import CollectionSkeleton from "@/components/kakaroto/loading";
 import FullPagination from "@/components/kakaroto/full-pagination";
 import { useState } from "react";
 import { useDebounce } from "@/lib/hooks";
-import { CollectionSelectionDrawer } from "./collection-selection";
 import { Button } from "@/components/ui/button";
 import { useGameStateStore } from "@/lib/game-state-store";
 
@@ -46,6 +45,7 @@ export default function Search() {
     <>
       <Input
         value={search}
+        placeholder="Search ..."
         onChange={(e) => {
           setSearch(e.target.value);
           const params = new URLSearchParams({
@@ -61,7 +61,7 @@ export default function Search() {
   );
 }
 
-export function SearchResults({ data }: { data?: DataType }) {
+function SearchResults({ data }: { data?: DataType }) {
   const searchParams = useSearchParams();
   const query = searchParams.get("query") ?? "";
   const page = Number(searchParams.get("page")) || 0;
