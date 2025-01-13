@@ -27,12 +27,13 @@ import Collection from "@/components/kakaroto/collection";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGameStateStore } from "@/lib/game-state-store";
 import { DeleteIcon } from "@/components/kakaroto/icons";
+import Link from "next/link";
 
 export function CollectionSelectionDrawer() {
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const selectedCollections = useGameStateStore(
-    (state) => state.challenges.length,
+    (state) => state.selectedCollections.length,
   );
 
   const trigger = (
@@ -40,9 +41,11 @@ export function CollectionSelectionDrawer() {
       {selectedCollections > 0 ? (
         <>
           <div>{selectedCollections} selected</div>
-          <Button variant="link" className="text-primary-foreground">
-            Start
-          </Button>
+          <Link href="/game">
+            <Button variant="link" className="text-primary-foreground">
+              Start
+            </Button>
+          </Link>
         </>
       ) : (
         <>
@@ -96,7 +99,7 @@ export function CollectionSelectionDrawer() {
 }
 
 function SelectedColections() {
-  const data = useGameStateStore((state) => state.challenges);
+  const data = useGameStateStore((state) => state.selectedCollections);
   const deleteChallenge = useGameStateStore.use.deleteChallenge();
 
   return (

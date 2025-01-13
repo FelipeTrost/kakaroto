@@ -70,7 +70,9 @@ export function SearchResults({ data }: { data?: DataType }) {
 
   const addChallenge = useGameStateStore.use.addChallenge();
   const deleteChallenge = useGameStateStore.use.deleteChallenge();
-  const collectionSelected = useGameStateStore((state) => state.challenges);
+  const collectionSelected = useGameStateStore(
+    (state) => state.selectedCollections,
+  );
 
   const setPage = (page: number) => {
     const params = new URLSearchParams({
