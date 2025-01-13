@@ -20,7 +20,10 @@ export default async function HomePage() {
         <section className="container flex flex-col gap-4 pb-12 pt-4 text-center lg:items-center lg:gap-8 lg:py-20">
           <div className="flex flex-1 flex-col items-center gap-4 text-center lg:gap-8">
             <div className="space-y-4">
-              <h1 className="text-4xl font-bold lg:text-6xl mr-[-1ch]">Kakaroto 🍺</h1>
+              <h1 className="text-4xl font-bold lg:text-6xl mr-[-1ch]">
+                Kakaroto 🍺
+                <span className="border-[2px] border-solid border-red-900 p-1 rounded ml-2">beta</span>
+              </h1>
               <h2 className="text-lg font-light text-muted-foreground lg:text-3xl">
                 A lot of fun
               </h2>
