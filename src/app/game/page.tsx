@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { useGameStateStore } from "@/lib/game-state-store";
-import { parseQuestion } from "@/lib/game/parser";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState, useEffect, useRef } from "react";
 import { IoCloseOutline } from "react-icons/io5";
@@ -13,6 +12,7 @@ import { AnimatePresence } from "motion/react"
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
+import BouncyDiv from "@/components/kakaroto/bouncy-div";
 
 function PlayerManagement() {
   const [playerInput, setPlayerInput] = useState("");
@@ -90,42 +90,12 @@ function Game() {
     <Button onClick={reset}>Reset</Button>
     <h1>No more challenges</h1></>;
 
-  const divVariants = {
-    hidden: {
-      opacity: 0,
-      scale: 0.8,
-      y: 50
-    },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        type: "spring",
-        stiffness: 120
-      }
-    },
-    exit: {
-      opacity: 0,
-      scale: 0.5,
-      y: 50,
-      transition: {
-        duration: 0.3
-      }
-    }
-  };
-
   return (
     <div className="h-[100svh] flex flex-col justify-between">
       <div className="h-[70%] flex items-center">
         <AnimatePresence>
-          <motion.div
+          <BouncyDiv
             key={currentChallenge?.challengeDisplay}
-            variants={divVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
             className="w-full"
           >
             <Card className="w-full p-10">
@@ -133,7 +103,7 @@ function Game() {
                 <span className="text-xl m-0">{currentChallenge?.challengeDisplay}</span>
               </CardContent>
             </Card>
-          </motion.div>
+          </BouncyDiv>
         </AnimatePresence></div>
 
       <div className="flex gap-2 py-4">
@@ -150,7 +120,7 @@ function FinishedScreen() {
         <h1 className="text-3xl font-bold text-foreground">That's it 🎉</h1>
         <p className="text-muted-foreground">Hope you had fun</p>
         <Link href="/game/search">
-          <Button variant="default" >New Game</Button>
+          <Button variant="default">New Game</Button>
         </Link>
       </div>
     </div>

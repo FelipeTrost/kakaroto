@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { getServerAuthSession } from "@/server/auth";
 import Link from "next/link";
 import AvatarMenu from "@/components/kakaroto/avatar-menu";
+import ReturnToGameButton from "./return-to-game-button";
 
 export default async function HomePage() {
   const session = await getServerAuthSession();
@@ -25,11 +26,12 @@ export default async function HomePage() {
               </h2>
             </div>
             <Link
-              href="/game"
+              href="/game/search"
               className={`w-[10rem] ${cn(buttonVariants({ size: "lg" }))}`}
             >
-              Get started
+              Play a game
             </Link>
+            <ReturnToGameButton />
             <Link
               href="/collections/new"
               className={`w-[10rem] ${cn(buttonVariants({ size: "lg", variant: "outline" }))}`}
