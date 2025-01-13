@@ -114,6 +114,7 @@ const gameStateStore = create<GameStateStore>()(
           set({
             state: "started",
             _gameCards: compatibleChallenges,
+            selectedCollections: [],
           });
           get().nextChallenge();
         } else {
@@ -157,10 +158,14 @@ const gameStateStore = create<GameStateStore>()(
 
         // no more cards
         if (!challenge) {
-          state.reset();
           set({ state: "finished" });
           return false;
         }
+
+        //remove selected card
+        set({
+          _gameCards: state._gameCards.toSpliced(ch_idx, 1),
+        });
 
         // normal challenge
         if (challenge.type === "normal") {
@@ -182,7 +187,6 @@ const gameStateStore = create<GameStateStore>()(
 
         set({
           currentChallenge: { ...challenge, challengeDisplay: challengeDisplay[0]! },
-          _gameCards: state._gameCards.toSpliced(ch_idx, 1),
           roundNumber: state.roundNumber + 1,
           ongoingChallenges: state.ongoingChallenges.concat({
             ...challenge,
@@ -198,7 +202,6 @@ const gameStateStore = create<GameStateStore>()(
       reset: () => {
         set({
           players: [],
-          selectedCollections: [],
           ongoingChallenges: [],
           state: "none",
           currentChallenge: undefined,
