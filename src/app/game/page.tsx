@@ -102,6 +102,7 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
 function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
   const currentChallenge = useGameStateStore.use.currentChallenge();
   const nextChallenge = useGameStateStore.use.nextChallenge();
+  const skipOngoingChallenge = useGameStateStore.use.skipOngoingChallenge();
 
   return (
     <section className="flex flex-col justify-between flex-grow">
@@ -122,6 +123,7 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
 
       <div className="flex gap-2 py-4">
         <Button variant="secondary" onClick={openPlayerManagement}><MdPeople className="mr-2" /> Players</Button>
+        {currentChallenge?.type === "ongoing" && <Button onClick={() => { skipOngoingChallenge(); nextChallenge(); }}>Skip</Button>}
         <Button onClick={nextChallenge}>Next card</Button>
       </div>
     </section>

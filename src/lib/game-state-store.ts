@@ -32,10 +32,12 @@ type GameStateStore = {
   checkPlayersAndSetCards: () => void | string;
   playedChallenges: Collection[];
   nextChallenge: () => void;
-  currentChallenge: (Card & { challengeDisplay: string }) | undefined;
+  skipOngoingChallenge: () => void;
+  currentChallenge: (Card & { challengeDisplay: string; id: number }) | undefined;
   ongoingChallenges: (Exclude<Card, { type: "normal" }> & {
     endRound: number;
     endDisplay: string;
+    id: number;
   })[];
   reset: () => void;
 };
@@ -60,6 +62,7 @@ const defaultGameState = {
   checkPlayersAndSetCards: noop,
   playedChallenges: [],
   nextChallenge: noop,
+  skipOngoingChallenge: noop,
   currentChallenge: undefined,
   ongoingChallenges: [],
   _gameCards: [],
@@ -127,7 +130,6 @@ const gameStateStore = create<GameStateStore>()(
 
           set({ selectedCollections: [], _gameCards: gameCards })
         }
-        console.log("gameCards", gameCards);
 
         const compatibleChallenges = [];
         for (const card of gameCards)
@@ -222,6 +224,17 @@ const gameStateStore = create<GameStateStore>()(
         });
 
         return true;
+      },
+      skipOngoingChallenge() {
+        const state = get();
+        if (state.currentChallenge?.type !== "ongoing") throw new Error("Tried to skip a challenge that wasn't ongoing");
+
+        const ongoingIdx = state.ongoingChallenges.findIndex(challenge => challenge.id === state?.currentChallenge?.id);
+        if (ongoingIdx === -1) throw new Error("Couldn't find challenge that should be on ongoingChallenges");
+        set({
+          ongoingChallenges: state.ongoingChallenges.toSpliced(ongoingIdx, 1)
+        })
+
       },
       ongoingChallenges: [],
       currentChallenge: undefined,
