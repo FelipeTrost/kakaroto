@@ -13,7 +13,9 @@ export default function Collection({
     <Card className="max-w-[85ch]">
       <CardHeader className="flex flex-row justify-between gap-4">
         <div>
-          <CardTitle className="text-xl">{collection.title}</CardTitle>
+          <CardTitle className="w-[20ch] truncate text-xl">
+            {collection.title}
+          </CardTitle>
           <p className="text-slate-500">
             Updated {formatDistanceToNow(collection.updatedAt)} ago
           </p>
