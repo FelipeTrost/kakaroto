@@ -57,7 +57,7 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
           <Badge
             variant="secondary"
             key={player}
-            className="w-fit flex-grow-0 px-4 text-xl py-2 flex items-center"
+            className="w-fit flex-grow-0 px-4 text-lg py-2 flex items-center"
           >
             <span>{player}</span>
             <button onClick={() => removePlayer(player)} className="ml-2">

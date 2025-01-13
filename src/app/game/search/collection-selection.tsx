@@ -45,10 +45,11 @@ export function CollectionSelectionDrawer() {
           <div>{selectedCollections} selected</div>
 
           <Button variant="link" className="text-primary-foreground" onMouseDown={() => {
+            // reset previous game
             resetGameStore();
             router.push("/game");
           }}>
-            Start
+            Start 🍺
           </Button>
         </>
       ) : (
@@ -64,7 +65,7 @@ export function CollectionSelectionDrawer() {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{trigger}</DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Selected Collections</DialogTitle>
             <DialogDescription>
@@ -108,7 +109,7 @@ function SelectedColections() {
 
   return (
     <ScrollArea className="h-auto max-h-[30vh] overflow-y-auto">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 pb-1">
         {data.map((collection) => (
           <Collection
             key={collection.id}
