@@ -95,7 +95,7 @@ function SearchResults({ data }: { data?: DataType }) {
 
   return (
     <>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-4 max-w-[85ch] m-auto">
         {data.map((collection) => (
           <Collection
             key={collection.collection.id}
