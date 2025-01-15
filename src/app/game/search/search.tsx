@@ -111,7 +111,10 @@ function SearchResults({ data }: { data?: DataType }) {
                   Remove
                 </Button>
               ) : (
-                <Button onClick={() => addChallenge(collection.collection)}>
+                <Button onClick={() => {
+                  // @ts-expect-error Cards are stored as untyped json, it's fine though zod checked it when saving it
+                  addChallenge(collection.collection)
+                }}>
                   Add
                 </Button>
               )

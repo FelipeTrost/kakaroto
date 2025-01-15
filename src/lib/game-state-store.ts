@@ -7,8 +7,9 @@ import {
   type cardSchema,
   type createCollectionSchema,
 } from "@/server/db/zod-schemas";
+import { questionCollections } from "@/server/db/schema";
 
-type Collection = z.infer<typeof createCollectionSchema> & { id: string };
+type Collection = typeof questionCollections.$inferSelect &  z.infer<typeof createCollectionSchema>;
 type Card = z.infer<typeof cardSchema>;
 
 type GameState = "started" | "finished" | "none";
