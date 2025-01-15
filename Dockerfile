@@ -1,4 +1,4 @@
-FROM oven/bun:1 AS base
+FROM oven/bun:latest AS base
 RUN mkdir -p /app
 WORKDIR /app
 COPY . .
