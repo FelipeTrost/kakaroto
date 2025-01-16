@@ -10,7 +10,8 @@ import GoogleProvider from "next-auth/providers/google";
 
 import { env } from "@/env";
 import { db } from "@/server/db";
-import { createTable } from "@/server/db/schema";
+import { createTable, users } from "@/server/db/schema";
+import Credentials from "next-auth/providers/credentials";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -38,15 +39,17 @@ declare module "next-auth" {
  *
  * @see https://next-auth.js.org/configuration/options
  */
-export const authOptions: NextAuthOptions = {
+const _authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    session: ({ token, session, user }) => {
+      if (token.user) return { ...session, user: token.user };
+      if (user) return { ...session, user };
+      return session;
+    },
+    async jwt({ token, user }) {
+      if (user) token.user = user;
+      return token;
+    },
   },
   adapter: DrizzleAdapter(db, createTable) as Adapter,
   providers: [
@@ -68,7 +71,44 @@ export const authOptions: NextAuthOptions = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
+  session: {
+    strategy: "jwt",
+  },
 };
+
+if (env.NODE_ENV === "development") {
+  _authOptions.providers.push(
+    Credentials({
+      name: "test-user",
+      credentials: {},
+      async authorize() {
+        let testUser = await db.query.users.findFirst({
+          where: (collection, { eq }) => eq(collection.id, "test-user"),
+        });
+
+        if (!testUser)
+          testUser = (
+            await db
+              .insert(users)
+              .values({
+                name: "Test User",
+                email: "test@test.com",
+                id: "test-user",
+              })
+              .returning()
+              .execute()
+          )[0];
+
+        const ret = testUser ?? null;
+        console.log(ret);
+
+        return ret;
+      },
+    }),
+  );
+}
+
+export const authOptions = _authOptions;
 
 /**
  * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.

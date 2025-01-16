@@ -1,6 +1,7 @@
+"use client";
+
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,25 +21,43 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useMediaQuery } from "@/lib/hooks";
 import { Card } from "@/components/ui/card";
 import Collection from "@/components/kakaroto/collection";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGameStateStore } from "@/lib/game-state-store";
 import { DeleteIcon } from "@/components/kakaroto/icons";
+import { useRouter } from "next/navigation";
 
 export function CollectionSelectionDrawer() {
   const [open, setOpen] = React.useState(false);
+  const router = useRouter();
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const selectedCollections = useGameStateStore(
-    (state) => state.challenges.length,
+    (state) => state.selectedCollections.length,
   );
+  const resetGameStore = useGameStateStore.use.reset()
 
   const trigger = (
-    <Card className="sticky bottom-4 mt-4 w-full bg-primary px-4 py-4 text-primary-foreground">
-      {selectedCollections} selected
+    <Card className="sticky bottom-4 mt-4 flex w-full items-center justify-between bg-primary px-4 py-3 text-primary-foreground">
+      {selectedCollections > 0 ? (
+        <>
+          <div>{selectedCollections} selected</div>
+
+          <Button variant="link" className="text-primary-foreground" onMouseDown={() => {
+            // reset previous game
+            resetGameStore();
+            router.push("/game");
+          }}>
+            Start 🍺
+          </Button>
+        </>
+      ) : (
+        <>
+          No collections selected
+          <Button variant="link" className="w-0"></Button>
+        </>
+      )}
     </Card>
   );
 
@@ -46,7 +65,7 @@ export function CollectionSelectionDrawer() {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>{trigger}</DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Selected Collections</DialogTitle>
             <DialogDescription>
@@ -85,12 +104,12 @@ export function CollectionSelectionDrawer() {
 }
 
 function SelectedColections() {
-  const data = useGameStateStore((state) => state.challenges);
+  const data = useGameStateStore((state) => state.selectedCollections);
   const deleteChallenge = useGameStateStore.use.deleteChallenge();
 
   return (
     <ScrollArea className="h-auto max-h-[30vh] overflow-y-auto">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 pb-1">
         {data.map((collection) => (
           <Collection
             key={collection.id}

@@ -15,7 +15,10 @@ export default async function RootLayout({ children }: PropsWithChildren) {
       {user ? (
         <nav className="mx-auto flex max-w-7xl items-center justify-between gap-x-6 p-6 lg:px-8">
           <div className="flex lg:flex-1">
-            <Link href="/">Kakaroto 🍺</Link>
+            <Link href="/">
+              Kakaroto 🍺
+              <span className="border-[2px] border-solid border-red-900 p-1 rounded ml-2">beta</span>
+            </Link>
           </div>
           <div className="hidden lg:flex ">
             <Link

@@ -8,6 +8,7 @@ import {
   dehydrate,
 } from "@tanstack/react-query";
 import CollectionSkeleton from "@/components/kakaroto/loading";
+import { CollectionSelectionDrawer } from "./collection-selection";
 
 async function Collections({ page, query }: { page: number; query: string }) {
   const queryClient = new QueryClient();
@@ -51,14 +52,18 @@ export default function SearchPage({
   const query = searchParams.success ? searchParams.data.query : "";
 
   return (
-    <main className="m-auto w-[90%] max-w-[70ch] gap-4 pb-12 pt-4 lg:items-center lg:gap-8 lg:py-10">
-      <h1 className="mb-6 text-left text-2xl font-bold lg:text-3xl">
-        Search collections to play
-      </h1>
+    <main className="m-auto flex min-h-svh flex-col gap-4 pb-12 pt-4 lg:items-center lg:gap-8 lg:py-10">
+      <div className="flex-1 w-full">
+        <h1 className="mb-6 text-left text-2xl font-bold lg:text-3xl">
+          Search collections to play
+        </h1>
 
-      <Suspense fallback={<CollectionSkeleton />}>
-        <Collections page={page} query={query} />
-      </Suspense>
+        <Suspense fallback={<CollectionSkeleton />}>
+          <Collections page={page} query={query} />
+        </Suspense>
+      </div>
+
+      <CollectionSelectionDrawer />
     </main>
   );
 }

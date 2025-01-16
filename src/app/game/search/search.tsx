@@ -9,7 +9,6 @@ import CollectionSkeleton from "@/components/kakaroto/loading";
 import FullPagination from "@/components/kakaroto/full-pagination";
 import { useState } from "react";
 import { useDebounce } from "@/lib/hooks";
-import { CollectionSelectionDrawer } from "./collection-selection";
 import { Button } from "@/components/ui/button";
 import { useGameStateStore } from "@/lib/game-state-store";
 
@@ -46,6 +45,7 @@ export default function Search() {
     <>
       <Input
         value={search}
+        placeholder="Search ..."
         onChange={(e) => {
           setSearch(e.target.value);
           const params = new URLSearchParams({
@@ -57,13 +57,11 @@ export default function Search() {
       />
 
       <SearchResults data={data} />
-
-      <CollectionSelectionDrawer />
     </>
   );
 }
 
-export function SearchResults({ data }: { data?: DataType }) {
+function SearchResults({ data }: { data?: DataType }) {
   const searchParams = useSearchParams();
   const query = searchParams.get("query") ?? "";
   const page = Number(searchParams.get("page")) || 0;
@@ -71,6 +69,10 @@ export function SearchResults({ data }: { data?: DataType }) {
   const pathname = usePathname();
 
   const addChallenge = useGameStateStore.use.addChallenge();
+  const deleteChallenge = useGameStateStore.use.deleteChallenge();
+  const collectionSelected = useGameStateStore(
+    (state) => state.selectedCollections,
+  );
 
   const setPage = (page: number) => {
     const params = new URLSearchParams({
@@ -84,7 +86,7 @@ export function SearchResults({ data }: { data?: DataType }) {
 
   if (data.length === 0)
     return (
-      <h1 className="prose text-left text-lg font-bold">
+      <h1 className="text-left text-lg font-bold">
         No collections found
       </h1>
     );
@@ -93,15 +95,29 @@ export function SearchResults({ data }: { data?: DataType }) {
 
   return (
     <>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-4 max-w-[85ch] m-auto">
         {data.map((collection) => (
           <Collection
             key={collection.collection.id}
             collection={collection.collection}
             rightNode={
-              <Button onClick={() => addChallenge(collection.collection)}>
-                Add
-              </Button>
+              collectionSelected.some(
+                (c) => c.id === collection.collection.id,
+              ) ? (
+                <Button
+                  onClick={() => deleteChallenge(collection.collection.id)}
+                  variant="outline"
+                >
+                  Remove
+                </Button>
+              ) : (
+                <Button onClick={() => {
+                  // @ts-expect-error Cards are stored as untyped json, it's fine though zod checked it when saving it
+                  addChallenge(collection.collection)
+                }}>
+                  Add
+                </Button>
+              )
             }
           />
         ))}

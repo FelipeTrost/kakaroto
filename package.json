@@ -8,8 +8,8 @@
     "db:studio": "drizzle-kit studio",
     "db:generate": "drizzle-kit generate:pg",
     "db:push": "drizzle-kit push",
-    "prestart": "npm run db:push",
-    "dev": "next dev --port 3001",
+    "prestart": "bun run db:push",
+    "dev": "next dev --port 3001 -H 0.0.0.0",
     "lint": "next lint",
     "start": "next start"
   },
@@ -37,6 +37,7 @@
     "drizzle-kit": "^0.22.7",
     "drizzle-orm": "^0.31.2",
     "lucide-react": "^0.330.0",
+    "motion": "^11.11.17",
     "next": "^14.0.4",
     "next-auth": "^4.24.5",
     "next-themes": "^0.2.1",
@@ -52,6 +53,7 @@
     "zustand": "^4.5.1"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.15",
     "@types/eslint": "^8.44.7",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
@@ -64,7 +66,7 @@
     "prettier": "^3.1.0",
     "prettier-plugin-tailwindcss": "^0.5.7",
     "tailwindcss": "^3.3.5",
-    "typescript": "^5.1.6"
+    "typescript": "^5.7.3"
   },
   "ct3aMetadata": {
     "initVersion": "7.26.0"
