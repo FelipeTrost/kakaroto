@@ -37,7 +37,7 @@ export default function AvatarMenu({ user, optionalComponentsClasses }: { user: 
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={optionalComponentsClasses}>
-          <Link href="/create-collection">
+          <Link href="/collections/new">
             New collection
           </Link>
         </DropdownMenuItem>
