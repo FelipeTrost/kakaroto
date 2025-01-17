@@ -8,7 +8,7 @@ import { useGameStateStore } from "@/lib/game-state-store";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState, useEffect, useRef } from "react";
 import { IoCloseOutline } from "react-icons/io5";
-import { AnimatePresence } from "motion/react"
+import { AnimatePresence } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import BouncyDiv from "@/components/kakaroto/bouncy-div";
@@ -25,7 +25,8 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
   const addGamePlayer = useGameStateStore.use.addPlayer();
   const removePlayer = useGameStateStore.use.removePlayer();
   const setGameState = useGameStateStore.use.setGameState();
-  const checkPlayersAndSetCards = useGameStateStore.use.checkPlayersAndSetCards();
+  const checkPlayersAndSetCards =
+    useGameStateStore.use.checkPlayersAndSetCards();
 
   function addPlayer(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -52,12 +53,12 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
         </form>
       </section>
 
-      <div className="flex flex-col flex-wrap gap-2 mb-8">
+      <div className="mb-8 flex flex-col flex-wrap gap-2">
         {players.map((player) => (
           <Badge
             variant="secondary"
             key={player}
-            className="w-fit flex-grow-0 px-4 text-lg py-2 flex items-center"
+            className="flex w-fit flex-grow-0 items-center px-4 py-2 text-lg"
           >
             <span>{player}</span>
             <button onClick={() => removePlayer(player)} className="ml-2">
@@ -67,20 +68,29 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
         ))}
       </div>
 
-      <div className="flex gap-2 items-center sticky bottom-4 my-4">
-        {inGameClose ?
-          <Button onClick={() => {
-            const message = checkPlayersAndSetCards();
-            if (message)
-              return toast({
-                description: message,
-                title: "Error",
-              });
-            inGameClose();
-          }}>Back to the game</Button>
-          :
-          (<>
-            <Button onClick={() => router.replace("/game/search")} variant="secondary"><ArrowLeft /> Back to collections </Button>
+      <div className="sticky bottom-4 my-4 flex items-center gap-2">
+        {inGameClose ? (
+          <Button
+            onClick={() => {
+              const message = checkPlayersAndSetCards();
+              if (message)
+                return toast({
+                  description: message,
+                  title: "Error",
+                });
+              inGameClose();
+            }}
+          >
+            Back to the game
+          </Button>
+        ) : (
+          <>
+            <Button
+              onClick={() => router.replace("/game/search")}
+              variant="secondary"
+            >
+              <ArrowLeft /> Back to collections{" "}
+            </Button>
             <Button
               onClick={() => {
                 const message = setGameState("started");
@@ -93,7 +103,8 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
             >
               Start game 🍺
             </Button>
-          </>)}
+          </>
+        )}
       </div>
     </>
   );
@@ -105,8 +116,8 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
   const skipOngoingChallenge = useGameStateStore.use.skipOngoingChallenge();
 
   return (
-    <section className="flex flex-col justify-between flex-grow">
-      <div className="flex items-center flex-grow">
+    <section className="flex flex-grow flex-col justify-between">
+      <div className="flex flex-grow items-center">
         <AnimatePresence>
           <BouncyDiv
             key={currentChallenge?.challengeDisplay}
@@ -114,7 +125,9 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
           >
             <Card className="w-full p-10">
               <CardContent>
-                <span className="text-xl m-0">{currentChallenge?.challengeDisplay}</span>
+                <span className="m-0 max-w-full break-words text-xl">
+                  {currentChallenge?.challengeDisplay}
+                </span>
               </CardContent>
             </Card>
           </BouncyDiv>
@@ -122,8 +135,19 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
       </div>
 
       <div className="flex gap-2 py-4">
-        <Button variant="secondary" onClick={openPlayerManagement}><MdPeople className="mr-2" /> Players</Button>
-        {currentChallenge?.type === "ongoing" && <Button onClick={() => { skipOngoingChallenge(); nextChallenge(); }}>Skip</Button>}
+        <Button variant="secondary" onClick={openPlayerManagement}>
+          <MdPeople className="mr-2" /> Players
+        </Button>
+        {currentChallenge?.type === "ongoing" && (
+          <Button
+            onClick={() => {
+              skipOngoingChallenge();
+              nextChallenge();
+            }}
+          >
+            Skip
+          </Button>
+        )}
         <Button onClick={nextChallenge}>Next card</Button>
       </div>
     </section>
@@ -132,8 +156,8 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
 
 function FinishedScreen() {
   return (
-    <div className="h-[100svh] flex items-center justify-center">
-      <div className="text-center prose mt-[-15%]">
+    <div className="flex h-[100svh] items-center justify-center">
+      <div className="prose mt-[-15%] text-center">
         <h1 className="text-3xl font-bold text-foreground">That's it 🎉</h1>
         <p className="text-muted-foreground">Hope you had fun</p>
         <Link href="/game/search">
@@ -141,7 +165,7 @@ function FinishedScreen() {
         </Link>
       </div>
     </div>
-  )
+  );
 }
 
 export default function GamePage() {
@@ -157,9 +181,15 @@ export default function GamePage() {
     }
   }, [router]);
 
-  if (inGamePlayerManagement) return <PlayerManagement inGameClose={() => setInGamePlayerManagement(false)} />
+  if (inGamePlayerManagement)
+    return (
+      <PlayerManagement inGameClose={() => setInGamePlayerManagement(false)} />
+    );
 
   if (state === "none") return <PlayerManagement />;
   if (state === "finished") return <FinishedScreen />;
-  else return <Game openPlayerManagement={() => setInGamePlayerManagement(true)} />;
+  else
+    return (
+      <Game openPlayerManagement={() => setInGamePlayerManagement(true)} />
+    );
 }
