@@ -9,7 +9,8 @@ import {
 } from "@/server/db/zod-schemas";
 import { questionCollections } from "@/server/db/schema";
 
-type Collection = typeof questionCollections.$inferSelect &  z.infer<typeof createCollectionSchema>;
+type Collection = typeof questionCollections.$inferSelect &
+  z.infer<typeof createCollectionSchema>;
 type Card = z.infer<typeof cardSchema>;
 
 type GameState = "started" | "finished" | "none";
@@ -26,7 +27,7 @@ type GameStateStore = {
   deleteChallenge: (id: Collection["id"]) => void;
   _gameCards: (Card & { id: number })[];
   cardsLeft: (Card & { id: number })[];
-  playedCards: number[],
+  playedCards: number[];
   nextRound: () => void;
   _hydrated: boolean;
   setGameState: (s: GameState) => void | string;
@@ -34,7 +35,9 @@ type GameStateStore = {
   playedChallenges: Collection[];
   nextChallenge: () => void;
   skipOngoingChallenge: () => void;
-  currentChallenge: (Card & { challengeDisplay: string; id: number }) | undefined;
+  currentChallenge:
+  | (Card & { challengeDisplay: string; id: number })
+  | undefined;
   ongoingChallenges: (Exclude<Card, { type: "normal" }> & {
     endRound: number;
     endDisplay: string;
@@ -110,9 +113,9 @@ const gameStateStore = create<GameStateStore>()(
       nextRound: () => set(() => ({ roundNumber: get().roundNumber + 1 })),
       _hydrated: false,
       /**
-        * Checks players and sets game cards to what is feasible 
-        * 
-        * TODO: this drops cards, and we should maybe add them back once more players are available again
+       * Checks players and sets game cards to what is feasible
+       *
+       * TODO: this drops cards, and we should maybe add them back once more players are available again
        */
       checkPlayersAndSetCards() {
         const state = get();
@@ -123,18 +126,21 @@ const gameStateStore = create<GameStateStore>()(
         // get game cards
         let gameCards = state._gameCards;
         if (state.state !== "started") {
-          gameCards = []
+          gameCards = [];
           let id = 0;
           for (const collection of state.selectedCollections)
             for (const card of collection.cards)
               gameCards.push({ ...card, id: id++ });
 
-          set({ selectedCollections: [], _gameCards: gameCards })
+          set({ selectedCollections: [], _gameCards: gameCards });
         }
 
         const compatibleChallenges = [];
         for (const card of gameCards)
-          if (!state.playedCards.find(n => n === card.id) && parseQuestion(card.question).nPlayers <= nPlayers)
+          if (
+            !state.playedCards.find((n) => n === card.id) &&
+            parseQuestion(card.question).nPlayers <= nPlayers
+          )
             compatibleChallenges.push(card);
 
         set({
@@ -146,7 +152,7 @@ const gameStateStore = create<GameStateStore>()(
         if (s === "started") {
           const error = get().checkPlayersAndSetCards();
           if (error) return error;
-          set({ state: "started" })
+          set({ state: "started" });
           get().nextChallenge();
         } else {
           set({ state: s });
@@ -158,7 +164,7 @@ const gameStateStore = create<GameStateStore>()(
 
         let endedChallengeIdx;
         for (let i = 0; i < state.ongoingChallenges.length; i++) {
-          if (state.ongoingChallenges[i]!.endRound >= state.roundNumber) {
+          if (state.ongoingChallenges[i]!.endRound <= state.roundNumber) {
             endedChallengeIdx = i;
             break;
           }
@@ -168,21 +174,26 @@ const gameStateStore = create<GameStateStore>()(
         const cardsLeft = state.cardsLeft;
         const ch_idx = Math.floor(cardsLeft.length * Math.random());
         const challenge = cardsLeft[ch_idx];
-        // take a challenge end if there arent more cards available
-        if ((!challenge && state.ongoingChallenges.length > 0))
+        // take a challenge end if there aren't more cards available
+        if (!challenge && state.ongoingChallenges.length > 0)
           endedChallengeIdx = 0;
 
         // Ongoing challenge ended
         if (endedChallengeIdx !== undefined) {
           const endedChallenge = state.ongoingChallenges[endedChallengeIdx]!;
           set({
-            currentChallenge: { ...endedChallenge, challengeDisplay: endedChallenge.endDisplay, },
-            ongoingChallenges: state.ongoingChallenges.toSpliced(endedChallengeIdx, 1),
-            roundNumber: state.roundNumber + 1
-          })
-          return true
+            currentChallenge: {
+              ...endedChallenge,
+              challengeDisplay: endedChallenge.endDisplay,
+            },
+            ongoingChallenges: state.ongoingChallenges.toSpliced(
+              endedChallengeIdx,
+              1,
+            ),
+            roundNumber: state.roundNumber + 1,
+          });
+          return true;
         }
-
 
         // no more cards
         if (!challenge) {
@@ -198,44 +209,63 @@ const gameStateStore = create<GameStateStore>()(
 
         // normal challenge
         if (challenge.type === "normal") {
-          const challengeDisplay = displayQuestion([challenge.question], state.players)[0]!;
-          set({ currentChallenge: { ...challenge, challengeDisplay }, roundNumber: state.roundNumber + 1 });
+          const challengeDisplay = displayQuestion(
+            [challenge.question],
+            state.players,
+          )[0]!;
+          set({
+            currentChallenge: { ...challenge, challengeDisplay },
+            roundNumber: state.roundNumber + 1,
+          });
           return true;
         }
 
         // ongoing challenge
-        const challengeDisplay = displayQuestion([challenge.question, challenge.questionEnd], state.players)
+        const challengeDisplay = displayQuestion(
+          [challenge.question, challenge.questionEnd],
+          state.players,
+        );
 
         const challengeMinRounds = 5;
         const challengeMaxounds = 12;
         let roundsToChallengeEnd =
-          Math.floor(
-            Math.random() * (challengeMaxounds - challengeMinRounds),
-          ) + challengeMinRounds;
-        roundsToChallengeEnd = Math.min(roundsToChallengeEnd, state.cardsLeft.length / 1.5);
+          Math.floor(Math.random() * (challengeMaxounds - challengeMinRounds)) +
+          challengeMinRounds;
+        roundsToChallengeEnd = Math.min(
+          roundsToChallengeEnd,
+          state.cardsLeft.length / 1.5,
+        );
 
         set({
-          currentChallenge: { ...challenge, challengeDisplay: challengeDisplay[0]! },
+          currentChallenge: {
+            ...challenge,
+            challengeDisplay: challengeDisplay[0]!,
+          },
           roundNumber: state.roundNumber + 1,
           ongoingChallenges: state.ongoingChallenges.concat({
             ...challenge,
             endRound: state.roundNumber + roundsToChallengeEnd,
-            endDisplay: challengeDisplay[1]!
-          })
+            endDisplay: challengeDisplay[1]!,
+          }),
         });
 
         return true;
       },
       skipOngoingChallenge() {
         const state = get();
-        if (state.currentChallenge?.type !== "ongoing") throw new Error("Tried to skip a challenge that wasn't ongoing");
+        if (state.currentChallenge?.type !== "ongoing")
+          throw new Error("Tried to skip a challenge that wasn't ongoing");
 
-        const ongoingIdx = state.ongoingChallenges.findIndex(challenge => challenge.id === state?.currentChallenge?.id);
-        if (ongoingIdx === -1) throw new Error("Couldn't find challenge that should be on ongoingChallenges");
+        const ongoingIdx = state.ongoingChallenges.findIndex(
+          (challenge) => challenge.id === state?.currentChallenge?.id,
+        );
+        if (ongoingIdx === -1)
+          throw new Error(
+            "Couldn't find challenge that should be on ongoingChallenges",
+          );
         set({
-          ongoingChallenges: state.ongoingChallenges.toSpliced(ongoingIdx, 1)
-        })
-
+          ongoingChallenges: state.ongoingChallenges.toSpliced(ongoingIdx, 1),
+        });
       },
       ongoingChallenges: [],
       currentChallenge: undefined,
