@@ -128,9 +128,15 @@ const gameStateStore = create<GameStateStore>()(
         if (state.state !== "started") {
           gameCards = [];
           let id = 0;
+
+          const cards = [];
           for (const collection of state.selectedCollections)
             for (const card of collection.cards)
-              gameCards.push({ ...card, id: id++ });
+              cards.push({ ...card, id: id++ });
+
+          cards.sort(() => Math.random() - 0.5);
+
+          for (const card of cards) gameCards.push({ ...card, id: id++ });
 
           set({ selectedCollections: [], _gameCards: gameCards });
         }
