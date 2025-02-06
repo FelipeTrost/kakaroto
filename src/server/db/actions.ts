@@ -7,6 +7,7 @@ import { getServerAuthSession } from "../auth";
 import { userResponse } from "../user-response";
 import { type z } from "zod";
 import { and, eq, ilike, or, sql } from "drizzle-orm";
+import type { PgRelationalQuery } from "drizzle-orm/pg-core/query-builders/query";
 
 export async function createColection(
   input: z.infer<typeof createCollectionSchema>,
@@ -21,19 +22,17 @@ export async function createColection(
     );
 
   try {
-    await db
-      .insert(questionCollections)
-      .values({
-        userId: session.user.id,
-        language: "en",
-        title: collectionData.title,
-        description: collectionData.description,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        cards: collectionData.cards,
-      })
+    await db.insert(questionCollections).values({
+      userId: session.user.id,
+      language: "en",
+      title: collectionData.title,
+      description: collectionData.description,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      cards: collectionData.cards,
+    });
 
-    return userResponse("sucess");
+    return userResponse("success");
   } catch (error) {
     console.error(error);
     return userResponse("error");
@@ -88,41 +87,86 @@ export async function updateCollection(
       })
       .where(eq(questionCollections.id, id));
 
-    return userResponse("sucess");
+    return userResponse("success");
   } catch (error) {
     console.error(error);
     return userResponse("error");
   }
 }
 
-const limit = 15;
-
 /** Indexing starts at 1 */
 export async function getCollesctions(
   query: string,
   pagination: {
     page: number;
+    limit: number;
   },
 ) {
-  const offset = Math.max(pagination.page - 1, 0) * limit;
+  // 1 <= limit <= 30
+  const limit = Math.min(Math.max(pagination.limit, 1), 30);
+  const page = Math.max(pagination.page, 1);
+
+  const offset = Math.max(page - 1, 0) * limit;
 
   try {
-    const collections = await db
+    let pinnedQuery:
+      | PgRelationalQuery<
+        {
+          id: number;
+          pinnedCollections: {
+            id: number;
+            description: string | null;
+            userId: string;
+            title: string;
+            language: string;
+            cards: unknown;
+            createdAt: Date;
+            updatedAt: Date;
+          };
+        }[]
+      >
+      | undefined = undefined;
+
+    if (query === "" && page === 1)
+      pinnedQuery = db.query.pinnedCollections.findMany({
+        with: {
+          pinnedCollections: true,
+        },
+      });
+
+    const collectionsQuery = db
       .select({
         collection: questionCollections,
         count: sql`count(*) OVER()`,
       })
       .from(questionCollections)
-      .offset(offset)
       .where(
-        or(
-          ilike(questionCollections.title, `%${query}%`),
-          ilike(questionCollections.description, `%${query}%`),
+        and(
+          or(
+            ilike(questionCollections.title, `%${query}%`),
+            ilike(questionCollections.description, `%${query}%`),
+          ),
+          sql`NOT EXISTS (
+            SELECT id FROM kakaroto_pinned_collections
+            WHERE id = ${questionCollections.id}
+          )`,
         ),
       )
+      .offset(offset)
       .limit(limit);
 
-    return userResponse("sucess", collections);
+    const [collections, pinned] = await Promise.all([
+      collectionsQuery,
+      pinnedQuery ?? [],
+    ]);
+
+    return userResponse("success", {
+      collections: [
+        ...pinned.map((p) => ({ ...p.pinnedCollections, pinned: true })),
+        ...collections.map((c) => ({ ...c.collection, pinned: false })),
+      ],
+      count: (collections[0]?.count as number) ?? 0,
+    });
   } catch (error) {
     console.error(error);
     return userResponse("error");

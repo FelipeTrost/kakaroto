@@ -78,7 +78,7 @@ export default function CollectionForm({
           description: "Something went wrong",
           title: "Error",
         });
-      else if (response.type === "sucess") {
+      else if (response.type === "success") {
         toast({
           description: "Collection created",
           title: "Success",

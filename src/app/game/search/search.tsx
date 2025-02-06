@@ -20,7 +20,7 @@ type DataType = Exclude<
 export default function Search() {
   // TODO: debounce query
   const searchParams = useSearchParams();
-  const page = Number(searchParams.get("page")) || 0;
+  const page = Number(searchParams.get("page")) || 1;
   const router = useRouter();
   const pathname = usePathname();
 
@@ -31,6 +31,7 @@ export default function Search() {
     queryFn: async () => {
       const res = await getCollesctions(query, {
         page: page,
+        limit: pageLimit,
       });
       if (res.type === "error") throw res;
       return res.message;
@@ -61,6 +62,8 @@ export default function Search() {
   );
 }
 
+export const pageLimit = 15;
+
 function SearchResults({ data }: { data?: DataType }) {
   const searchParams = useSearchParams();
   const query = searchParams.get("query") ?? "";
@@ -84,37 +87,33 @@ function SearchResults({ data }: { data?: DataType }) {
 
   if (!data) return <CollectionSkeleton />;
 
-  if (data.length === 0)
+  if (data.count === 0)
     return (
-      <h1 className="text-left text-lg font-bold">
-        No collections found
-      </h1>
+      <h1 className="text-left text-lg font-bold">No collections found</h1>
     );
-
-  const count = (data[0]?.count as number) || 0;
 
   return (
     <>
-      <div className="flex flex-col gap-4 max-w-[85ch] m-auto">
-        {data.map((collection) => (
+      <div className="m-auto flex max-w-[85ch] flex-col gap-4">
+        {data.collections.map((collection) => (
           <Collection
-            key={collection.collection.id}
-            collection={collection.collection}
+            key={collection.id}
+            collection={collection}
             rightNode={
-              collectionSelected.some(
-                (c) => c.id === collection.collection.id,
-              ) ? (
+              collectionSelected.some((c) => c.id === collection.id) ? (
                 <Button
-                  onClick={() => deleteChallenge(collection.collection.id)}
+                  onClick={() => deleteChallenge(collection.id)}
                   variant="outline"
                 >
                   Remove
                 </Button>
               ) : (
-                <Button onClick={() => {
-                  // @ts-expect-error Cards are stored as untyped json, it's fine though zod checked it when saving it
-                  addChallenge(collection.collection)
-                }}>
+                <Button
+                  onClick={() => {
+                    // @ts-expect-error Cards are stored as untyped json, it's fine though zod checked it when saving it
+                    addChallenge(collection);
+                  }}
+                >
                   Add
                 </Button>
               )
@@ -123,7 +122,11 @@ function SearchResults({ data }: { data?: DataType }) {
         ))}
       </div>
 
-      <FullPagination setPage={setPage} itemCount={count} currentPage={page} />
+      <FullPagination
+        setPage={setPage}
+        itemCount={data.count}
+        currentPage={page}
+      />
     </>
   );
 }

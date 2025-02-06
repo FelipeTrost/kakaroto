@@ -34,7 +34,7 @@ async function Collections({ page, query }: { page: number; query: string }) {
 }
 
 const paramsSchema = z.object({
-  page: z.coerce.number().default(0),
+  page: z.coerce.number().min(1).default(1),
   query: z.preprocess(
     (arg: unknown) => (typeof arg === "string" ? decodeURIComponent(arg) : arg),
     z.string().default(""),

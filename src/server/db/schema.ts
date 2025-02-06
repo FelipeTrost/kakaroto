@@ -150,6 +150,31 @@ export const questionCollectiionsRelations = relations(
   }),
 );
 
+export const pinnedCollections = createTable(
+  "pinned_collections",
+  {
+    id: serial("id")
+      .primaryKey()
+      .references(() => questionCollections.id),
+  },
+  (pinnedCollections) => ({
+    questionCollectionUserIdIdx: index("pinned_collections_idx").on(
+      pinnedCollections.id,
+    ),
+    title: index("pinned_collections_title_idx").on(pinnedCollections.id),
+  }),
+);
+
+export const pinnedCollectionsRelations = relations(
+  pinnedCollections,
+  ({ one }) => ({
+    pinnedCollections: one(questionCollections, {
+      fields: [pinnedCollections.id],
+      references: [questionCollections.id],
+    }),
+  }),
+);
+
 // export const questions = createTable(
 //   "question",
 //   {

@@ -1,3 +1,4 @@
+import { pageLimit } from "@/app/game/search/search";
 import {
   Pagination,
   PaginationContent,
@@ -9,7 +10,6 @@ import {
 } from "../ui/pagination";
 
 const pagesSpan = 2;
-const limit = 15;
 export default function FullPagination({
   setPage,
   itemCount,
@@ -19,7 +19,7 @@ export default function FullPagination({
   itemCount: number;
   currentPage: number;
 }) {
-  const count = Math.ceil(itemCount / limit);
+  const count = Math.ceil(itemCount / pageLimit);
 
   // Pagination is not that good, but i'm happy with it
   const startPage = Math.max(currentPage - pagesSpan + 1, 2);

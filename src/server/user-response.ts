@@ -2,7 +2,7 @@ import { type ReactNode } from "react";
 
 export type UserResponse =
   | { type: "error"; message?: ReactNode }
-  | { type: "sucess"; message?: unknown };
+  | { type: "success"; message?: unknown };
 
 /** Helper function for server actions returns */
 export function userResponse<
