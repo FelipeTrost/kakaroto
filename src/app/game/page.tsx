@@ -115,6 +115,33 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
   );
 }
 
+function DisplayChallenge({ display }: { display: string }) {
+  const [currentSegment, setCurrentSegment] = useState(0);
+  const segments = display.split("....");
+  const segmentCount = segments.length;
+
+  return (
+    <div className="flex flex-col justify-start gap-4">
+      <span className="m-0 max-w-full break-words text-xl">
+        {segments.splice(0, currentSegment + 1).map((segment) => (
+          <span key={segment} className="animate-fade-in">
+            {segment}
+          </span>
+        ))}
+      </span>
+      {currentSegment < segmentCount - 1 && (
+        <Button
+          onClick={() => setCurrentSegment((s) => s + 1)}
+          variant="outline"
+          className="w-min flex-grow-0"
+        >
+          Next Part
+        </Button>
+      )}
+    </div>
+  );
+}
+
 function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
   const currentChallenge = useGameStateStore.use.currentChallenge();
   const nextChallenge = useGameStateStore.use.nextChallenge();
@@ -130,9 +157,12 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
           >
             <Card className="w-full p-10">
               <CardContent>
-                <span className="m-0 max-w-full break-words text-xl">
-                  {currentChallenge?.challengeDisplay}
-                </span>
+                {currentChallenge && (
+                  <DisplayChallenge
+                    display={currentChallenge?.challengeDisplay}
+                    key={currentChallenge?.challengeDisplay}
+                  />
+                )}
               </CardContent>
             </Card>
           </BouncyDiv>
