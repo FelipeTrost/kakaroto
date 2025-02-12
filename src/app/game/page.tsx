@@ -14,6 +14,7 @@ import Link from "next/link";
 import BouncyDiv from "@/components/kakaroto/bouncy-div";
 import { ArrowLeft } from "lucide-react";
 import { MdPeople } from "react-icons/md";
+import { captureEvent, eventTypes } from "@/components/analytics-provider";
 
 function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
   const [playerInput, setPlayerInput] = useState("");
@@ -93,6 +94,10 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
             </Button>
             <Button
               onClick={() => {
+                captureEvent(eventTypes.gameStartedWithNCollections, {
+                  [eventTypes.gameStartedWithNCollections_n]:
+                    useGameStateStore.getState().selectedCollections.length,
+                });
                 const message = setGameState("started");
                 if (message)
                   toast({

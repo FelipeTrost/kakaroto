@@ -5,6 +5,9 @@ import { Inter as FontSans } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
+import SuspendedPageView, {
+  AnalyticsProvider,
+} from "@/components/analytics-provider";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -24,14 +27,17 @@ export default function RootLayout({ children }: PropsWithChildren) {
           fontSans.variable,
         )}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <AnalyticsProvider>
+          <SuspendedPageView />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </AnalyticsProvider>
         <Toaster />
       </body>
     </html>
