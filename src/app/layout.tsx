@@ -31,7 +31,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
           <SuspendedPageView />
           <ThemeProvider
             attribute="class"
-            defaultTheme="dark"
+            defaultTheme="light"
             enableSystem
             disableTransitionOnChange
           >
