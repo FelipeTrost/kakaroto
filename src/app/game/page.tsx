@@ -86,7 +86,7 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
         ) : (
           <>
             <Button
-              onClick={() => router.replace("/game/search")}
+              onClick={() => router.push("/game/search")}
               variant="secondary"
             >
               <ArrowLeft /> Back to collections{" "}
