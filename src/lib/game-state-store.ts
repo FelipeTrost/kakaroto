@@ -7,7 +7,7 @@ import {
   type cardSchema,
   type createCollectionSchema,
 } from "@/server/db/zod-schemas";
-import { questionCollections } from "@/server/db/schema";
+import { type questionCollections } from "@/server/db/schema";
 
 type Collection = typeof questionCollections.$inferSelect &
   z.infer<typeof createCollectionSchema>;
@@ -36,8 +36,8 @@ type GameStateStore = {
   nextChallenge: () => void;
   skipOngoingChallenge: () => void;
   currentChallenge:
-  | (Card & { challengeDisplay: string; id: number })
-  | undefined;
+    | (Card & { challengeDisplay: string; id: number })
+    | undefined;
   ongoingChallenges: (Exclude<Card, { type: "normal" }> & {
     endRound: number;
     endDisplay: string;

@@ -18,6 +18,7 @@ async function Collections({ page, query }: { page: number; query: string }) {
     queryFn: async () => {
       const initialData = await getCollesctions(query, {
         page: page,
+        limit: 15,
       });
       // TODO: error boundary
       if (initialData.type === "error") throw initialData;
