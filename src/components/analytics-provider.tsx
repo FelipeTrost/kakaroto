@@ -16,6 +16,7 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
     posthog.init(env.NEXT_PUBLIC_ANALYTICS_KEY, {
       api_host: env.NEXT_PUBLIC_ANALYTICS_HOST,
       capture_pageview: false,
+      capture_pageleave: true,
     });
   }, []);
 
