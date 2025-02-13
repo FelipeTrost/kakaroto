@@ -40,33 +40,35 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
   }
 
   return (
-    <>
-      <section className="bg-background">
-        <h2 className="mt-4">Add players</h2>
-        <form className="mb-8 flex gap-4" onSubmit={addPlayer}>
-          <Input
-            name="name"
-            value={playerInput}
-            onChange={(e) => setPlayerInput(e.target.value)}
-            ref={inputRef}
-          />
-          <Button>Add</Button>
-        </form>
-      </section>
+    <div className="flex flex-col justify-between flex-1">
+      <div className="flex-1">
+        <section className="bg-background">
+          <h2 className="mt-4">Add players</h2>
+          <form className="mb-8 flex gap-4" onSubmit={addPlayer}>
+            <Input
+              name="name"
+              value={playerInput}
+              onChange={(e) => setPlayerInput(e.target.value)}
+              ref={inputRef}
+            />
+            <Button>Add</Button>
+          </form>
+        </section>
 
-      <div className="mb-8 flex flex-col flex-wrap gap-2">
-        {players.map((player) => (
-          <Badge
-            variant="secondary"
-            key={player}
-            className="flex w-fit flex-grow-0 items-center px-4 py-2 text-lg"
-          >
-            <span>{player}</span>
-            <button onClick={() => removePlayer(player)} className="ml-2">
-              <IoCloseOutline />
-            </button>
-          </Badge>
-        ))}
+        <div className="mb-8 flex flex-col flex-wrap gap-2">
+          {players.map((player) => (
+            <Badge
+              variant="secondary"
+              key={player}
+              className="flex w-fit flex-grow-0 items-center px-4 py-2 text-lg"
+            >
+              <span>{player}</span>
+              <button onClick={() => removePlayer(player)} className="ml-2">
+                <IoCloseOutline />
+              </button>
+            </Badge>
+          ))}
+        </div>
       </div>
 
       <div className="sticky bottom-4 my-4 flex items-center gap-2">
@@ -111,7 +113,7 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
           </>
         )}
       </div>
-    </>
+    </div>
   );
 }
 
