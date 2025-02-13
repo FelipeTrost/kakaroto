@@ -53,7 +53,7 @@ export default function SearchPage({
   const query = searchParams.success ? searchParams.data.query : "";
 
   return (
-    <main className="m-auto flex flex-col gap-4 pb-12 pt-4 lg:items-center lg:gap-8 lg:py-10">
+    <main className="m-auto flex w-[85ch] max-w-full flex-1 flex-col justify-between gap-4 lg:items-center lg:gap-8 lg:py-10">
       <div className="w-full flex-1">
         <h1 className="mb-6 text-left text-2xl font-bold lg:text-3xl">
           Search collections to play
