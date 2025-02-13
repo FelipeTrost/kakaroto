@@ -8,8 +8,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  DialogTitle
 } from "@/components/ui/dialog";
 import {
   Drawer,
@@ -18,11 +17,9 @@ import {
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
+  DrawerTitle
 } from "@/components/ui/drawer";
 import { useMediaQuery } from "@/lib/hooks";
-import { Card } from "@/components/ui/card";
 import Collection from "@/components/kakaroto/collection";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useGameStateStore } from "@/lib/game-state-store";
@@ -36,19 +33,26 @@ export function CollectionSelectionDrawer() {
   const selectedCollections = useGameStateStore(
     (state) => state.selectedCollections.length,
   );
-  const resetGameStore = useGameStateStore.use.reset()
+  const resetGameStore = useGameStateStore.use.reset();
 
   const trigger = (
-    <Card className="sticky bottom-4 mt-4 flex w-full items-center justify-between bg-primary px-4 py-3 text-primary-foreground">
+    <button
+      onMouseDown={() => setOpen(true)}
+      className="sticky bottom-4 mt-4 flex w-full items-center justify-between rounded-xl bg-primary px-4 py-3 text-primary-foreground"
+    >
       {selectedCollections > 0 ? (
         <>
           <div>{selectedCollections} selected</div>
 
-          <Button variant="link" className="text-primary-foreground" onMouseDown={() => {
-            // reset previous game
-            resetGameStore();
-            router.push("/game");
-          }}>
+          <Button
+            variant="link"
+            className="text-primary-foreground"
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              resetGameStore();
+              router.push("/game");
+            }}
+          >
             Start 🍺
           </Button>
         </>
@@ -58,13 +62,13 @@ export function CollectionSelectionDrawer() {
           <Button variant="link" className="w-0"></Button>
         </>
       )}
-    </Card>
+    </button>
   );
 
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>{trigger}</DialogTrigger>
+        {trigger}
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Selected Collections</DialogTitle>
@@ -80,9 +84,7 @@ export function CollectionSelectionDrawer() {
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>
-        <DrawerTrigger asChild>{trigger}</DrawerTrigger>
-      </DrawerTrigger>
+      {trigger}
       <DrawerContent>
         <DrawerHeader className="text-left">
           <DrawerTitle>Selected Collections</DrawerTitle>
