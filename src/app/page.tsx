@@ -50,6 +50,7 @@ export default async function HomePage() {
             >
               Create Collection
             </Link>
+            <span className="text-2xl">🐱</span>
           </div>
         </section>
       </main>

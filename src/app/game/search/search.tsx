@@ -65,11 +65,12 @@ export default function Search() {
 export const pageLimit = 15;
 
 function SearchResults({ data }: { data?: DataType }) {
-  const searchParams = useSearchParams();
-  const query = searchParams.get("query") ?? "";
-  const page = Number(searchParams.get("page")) || 0;
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const query = searchParams.get("query") ?? "";
+  const page = Math.max(Number(searchParams.get("page")), 1);
 
   const addChallenge = useGameStateStore.use.addChallenge();
   const deleteChallenge = useGameStateStore.use.deleteChallenge();

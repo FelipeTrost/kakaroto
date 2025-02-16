@@ -11,7 +11,7 @@ import {
 
 const pagesSpan = 2;
 export default function FullPagination({
-  setPage,
+  setPage: _setPage,
   itemCount,
   currentPage,
 }: {
@@ -20,6 +20,10 @@ export default function FullPagination({
   currentPage: number;
 }) {
   const count = Math.ceil(itemCount / pageLimit);
+
+  function setPage(page: number) {
+    if (page !== currentPage) _setPage(page);
+  }
 
   // Pagination is not that good, but i'm happy with it
   const startPage = Math.max(currentPage - pagesSpan + 1, 2);
@@ -40,7 +44,7 @@ export default function FullPagination({
     <Pagination className="mt-4">
       <PaginationContent>
         <PaginationItem onClick={() => setPage(Math.max(1, currentPage - 1))}>
-          <PaginationPrevious href="#" />
+          <PaginationPrevious />
         </PaginationItem>
 
         <PaginationItem onClick={() => setPage(1)}>
@@ -68,7 +72,10 @@ export default function FullPagination({
 
         <PaginationItem>
           <PaginationNext
-            onClick={() => setPage(Math.min(count, currentPage + 1))}
+            onClick={() => {
+              if (currentPage !== count)
+                setPage(Math.min(count, currentPage + 1))
+            }}
           />
         </PaginationItem>
       </PaginationContent>
