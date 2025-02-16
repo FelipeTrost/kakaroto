@@ -18,12 +18,12 @@ export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/** TODO: make theme color mathc theme provider's color*/}
+        {/** TODO: make theme color match theme provider's color*/}
         <meta name="theme-color" content="var(hsl(--background))" />
       </head>
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased",
+          "min-h-[100svh] bg-background font-sans antialiased",
           fontSans.variable,
         )}
       >
