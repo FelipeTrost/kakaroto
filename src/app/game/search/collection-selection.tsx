@@ -8,7 +8,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle
+  DialogTitle,
 } from "@/components/ui/dialog";
 import {
   Drawer,
@@ -17,7 +17,7 @@ import {
   DrawerDescription,
   DrawerFooter,
   DrawerHeader,
-  DrawerTitle
+  DrawerTitle,
 } from "@/components/ui/drawer";
 import { useMediaQuery } from "@/lib/hooks";
 import Collection from "@/components/kakaroto/collection";
@@ -121,6 +121,7 @@ function SelectedColections() {
                 <DeleteIcon className="h-3 w-3" />
               </Button>
             }
+            compact
           />
         ))}
       </div>

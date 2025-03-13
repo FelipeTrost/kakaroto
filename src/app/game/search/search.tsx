@@ -8,7 +8,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import CollectionSkeleton from "@/components/kakaroto/loading";
 import FullPagination from "@/components/kakaroto/full-pagination";
 import { useState } from "react";
-import { useDebounce } from "@/lib/hooks";
+import { useDebounce, useMediaQuery } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
 import { useGameStateStore } from "@/lib/game-state-store";
 
@@ -68,6 +68,7 @@ function SearchResults({ data }: { data?: DataType }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const query = searchParams.get("query") ?? "";
   const page = Math.max(Number(searchParams.get("page")), 1);
@@ -119,6 +120,7 @@ function SearchResults({ data }: { data?: DataType }) {
                 </Button>
               )
             }
+            compact={!isDesktop}
           />
         ))}
       </div>
