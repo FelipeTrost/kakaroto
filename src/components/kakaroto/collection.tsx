@@ -17,7 +17,7 @@ export default function Collection({
 }) {
   return (
     <Card className="max-w-[85ch]" {...cardProps}>
-      <CardHeader className={cn("flex flex-row justify-between gap-4", { "py-2 px-4": compact })}>
+      <CardHeader className={cn("flex flex-row justify-between gap-4", { "py-3 px-4": compact })}>
         <div className="min-w-0 flex-1">
           <CardTitle className="truncate text-xl">
             {collection.pinned && (
