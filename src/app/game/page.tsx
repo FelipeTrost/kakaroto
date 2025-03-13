@@ -32,15 +32,40 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
   function addPlayer(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const player = playerInput.trim();
-    if (!player) return;
-    addGamePlayer(player);
-    setPlayerInput("");
+    if (!player) return submitPlayers();
 
+    addGamePlayer(player);
+
+    setPlayerInput("");
     inputRef.current?.focus();
   }
 
+  function submitPlayers() {
+    if (inGameClose) {
+      const message = checkPlayersAndSetCards();
+      if (message)
+        return toast({
+          description: message,
+          title: "Error",
+        });
+      inGameClose();
+    } else {
+      captureEvent(eventTypes.gameStartedWithNCollections, {
+        [eventTypes.gameStartedWithNCollections_n]:
+          useGameStateStore.getState().selectedCollections.length,
+      });
+
+      const message = setGameState("started");
+      if (message)
+        return toast({
+          description: message,
+          title: "Error",
+        });
+    }
+  }
+
   return (
-    <div className="flex flex-col justify-between flex-1">
+    <div className="flex flex-1 flex-col justify-between">
       <div className="flex-1">
         <section className="bg-background">
           <h2 className="mt-4">Add players</h2>
@@ -72,46 +97,17 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
       </div>
 
       <div className="sticky bottom-4 my-4 flex items-center gap-2">
-        {inGameClose ? (
+        {!inGameClose && (
           <Button
-            onClick={() => {
-              const message = checkPlayersAndSetCards();
-              if (message)
-                return toast({
-                  description: message,
-                  title: "Error",
-                });
-              inGameClose();
-            }}
+            onClick={() => router.push("/game/search")}
+            variant="secondary"
           >
-            Back to the game
+            <ArrowLeft /> Back to collections{" "}
           </Button>
-        ) : (
-          <>
-            <Button
-              onClick={() => router.push("/game/search")}
-              variant="secondary"
-            >
-              <ArrowLeft /> Back to collections{" "}
-            </Button>
-            <Button
-              onClick={() => {
-                captureEvent(eventTypes.gameStartedWithNCollections, {
-                  [eventTypes.gameStartedWithNCollections_n]:
-                    useGameStateStore.getState().selectedCollections.length,
-                });
-                const message = setGameState("started");
-                if (message)
-                  toast({
-                    description: message,
-                    title: "Error",
-                  });
-              }}
-            >
-              Start game 🍺
-            </Button>
-          </>
         )}
+        <Button onClick={submitPlayers}>
+          {inGameClose ? "Back to the game" : "Start game 🍺"}
+        </Button>
       </div>
     </div>
   );
