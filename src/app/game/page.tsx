@@ -212,10 +212,12 @@ export default function GamePage() {
 
   useEffect(() => {
     const state = useGameStateStore.getState();
-    if (state.state === "none") {
-      if (state.selectedCollections.length === 0)
-        return router.push("/game/search");
-    }
+
+    if (state.state === "none" && state.selectedCollections.length === 0)
+      return router.push("/game/search");
+
+    if (state.state === "started" && state.players.length < 2)
+      setInGamePlayerManagement(true);
   }, [router]);
 
   if (inGamePlayerManagement)
@@ -225,7 +227,7 @@ export default function GamePage() {
 
   if (state === "none") return <PlayerManagement />;
   if (state === "finished") return <FinishedScreen />;
-  else
+  else if (state === "started")
     return (
       <Game openPlayerManagement={() => setInGamePlayerManagement(true)} />
     );
