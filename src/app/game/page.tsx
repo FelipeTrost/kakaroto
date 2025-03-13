@@ -153,8 +153,8 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
             key={currentChallenge?.challengeDisplay}
             className="w-full"
           >
-            <Card className="w-full p-10">
-              <CardContent>
+            <Card className="w-full p-0">
+              <CardContent className="px-4 py-10 md:px-14">
                 {currentChallenge && (
                   <DisplayChallenge
                     display={currentChallenge?.challengeDisplay}
