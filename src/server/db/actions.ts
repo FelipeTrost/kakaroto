@@ -6,7 +6,7 @@ import { createCollectionSchema } from "./zod-schemas";
 import { getServerAuthSession } from "../auth";
 import { userResponse } from "../user-response";
 import { type z } from "zod";
-import { and, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import type { PgRelationalQuery } from "drizzle-orm/pg-core/query-builders/query";
 
 export async function createColection(
@@ -140,6 +140,7 @@ export async function getCollesctions(
         count: sql`count(*) OVER()`,
       })
       .from(questionCollections)
+      .orderBy(desc(questionCollections.updatedAt))
       .where(
         and(
           or(
