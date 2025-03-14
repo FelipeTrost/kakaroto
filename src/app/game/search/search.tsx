@@ -7,10 +7,11 @@ import Collection from "@/components/kakaroto/collection";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import CollectionSkeleton from "@/components/kakaroto/loading";
 import FullPagination from "@/components/kakaroto/full-pagination";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useDebounce, useMediaQuery } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
 import { useGameStateStore } from "@/lib/game-state-store";
+import { IoClose } from "react-icons/io5";
 
 type DataType = Exclude<
   Awaited<ReturnType<typeof getCollesctions>>,
@@ -24,8 +25,22 @@ export default function Search() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [search, setSearch] = useState(searchParams.get("query") ?? "");
-  const query = useDebounce(search);
+  const [input, setInput] = useState(searchParams.get("query") ?? "");
+  const query = useDebounce(input);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function search(searchInput: string) {
+    setInput(searchInput);
+
+    let searchQuery = "";
+    if (searchInput) {
+      const params = new URLSearchParams({
+        query: searchInput,
+      });
+      searchQuery = "?" + params.toString();
+    }
+    router.replace(pathname + searchQuery);
+  }
 
   const { data } = useQuery({
     queryFn: async () => {
@@ -44,18 +59,20 @@ export default function Search() {
 
   return (
     <>
-      <Input
-        value={search}
-        placeholder="Search ..."
-        onChange={(e) => {
-          setSearch(e.target.value);
-          const params = new URLSearchParams({
-            query: e.target.value,
-          });
-          router.replace(pathname + "?" + params.toString());
-        }}
-        className="mb-6"
-      />
+      <div className="flex relative h-fit mb-6">
+        <Input
+          value={input}
+          placeholder="Search ..."
+          onChange={(e) => search(e.target.value)}
+          ref={inputRef}
+        />
+        {input && <button className="absolute right-4 top-[50%] translate-y-[-50%]" onClick={() => {
+          search("")
+          inputRef.current?.focus()
+        }}>
+          < IoClose />
+        </button>}
+      </div>
 
       <SearchResults data={data} />
     </>
