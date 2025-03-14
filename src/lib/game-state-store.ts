@@ -9,17 +9,10 @@ import {
 } from "@/server/db/zod-schemas";
 import { type questionCollections } from "@/server/db/schema";
 
-type Prettify<T> = T extends (infer L)[]
-  ? Prettify<L>[]
-  : // eslint-disable-next-line
-    { [K in keyof T]: T[K] } & {};
 
 type Collection = typeof questionCollections.$inferSelect &
   z.infer<typeof createCollectionSchema>;
 type Card = z.infer<typeof cardSchema>;
-type CardOngoingEnd = Omit<Extract<Card, { type: "ongoing" }>, "type"> & {
-  type: "ongoing-end";
-};
 
 type GameState = "started" | "finished" | "none";
 type GameStateStore = {
@@ -45,7 +38,7 @@ type GameStateStore = {
   skipOngoingChallenge: () => void;
   currentChallenge:
     | Prettify<
-        (Card | CardOngoingEnd) & {
+        Card  & {
           challengeDisplay: string;
           id: number;
         }
@@ -204,7 +197,6 @@ const gameStateStore = create<GameStateStore>()(
             currentChallenge: {
               ...endedChallenge,
               challengeDisplay: endedChallenge.endDisplay,
-              type: "ongoing-end",
             },
             ongoingChallenges: state.ongoingChallenges.toSpliced(
               endedChallengeIdx,
