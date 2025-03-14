@@ -21,7 +21,7 @@ export default function Collection({
         <div className="min-w-0 flex-1">
           <CardTitle className="truncate text-xl">
             {collection.pinned && (
-              <p className="flex items-center text-sm text-muted">
+              <p className="flex items-center text-sm text-slate-600">
                 <BsPinAngleFill className="mr-2 fill-green-600" /> pinned
               </p>
             )}
