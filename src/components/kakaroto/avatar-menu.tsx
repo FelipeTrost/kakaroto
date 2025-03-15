@@ -93,7 +93,7 @@ export default function AvatarMenu({
             <AvatarFallback>{user.name?.substring(0, 2)}</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent className="mr-2">
           <DropdownMenuLabel>Collections</DropdownMenuLabel>
           <DropdownMenuItem asChild>
             <Link href="/collections">
