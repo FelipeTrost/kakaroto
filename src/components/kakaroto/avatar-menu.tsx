@@ -13,6 +13,8 @@ import { type DefaultSession } from "next-auth";
 import { signOut } from "next-auth/react";
 import { HiOutlineLogout } from "react-icons/hi";
 import { MdDelete } from "react-icons/md";
+import { TiPlus } from "react-icons/ti";
+import { BsCollectionFill } from "react-icons/bs";
 import { useToast } from "@/components/ui/use-toast";
 import {
   AlertDialog,
@@ -53,10 +55,8 @@ const LoadingSpinner = ({ className }: { className?: string }) => {
 
 export default function AvatarMenu({
   user,
-  optionalComponentsClasses,
 }: {
   user: NonNullable<DefaultSession["user"]>;
-  optionalComponentsClasses?: string;
 }) {
   const { toast } = useToast();
   const router = useRouter();
@@ -95,11 +95,16 @@ export default function AvatarMenu({
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuLabel>Collections</DropdownMenuLabel>
-          <DropdownMenuItem asChild className={optionalComponentsClasses}>
-            <Link href="/collections">My collections</Link>
+          <DropdownMenuItem asChild>
+            <Link href="/collections">
+              <BsCollectionFill className="mr-2" />
+              My collections
+            </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild className={optionalComponentsClasses}>
-            <Link href="/collections/new">New collection</Link>
+          <DropdownMenuItem asChild>
+            <Link href="/collections/new">
+              <TiPlus className="mr-2" /> New collection
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuLabel>My Account</DropdownMenuLabel>

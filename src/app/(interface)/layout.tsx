@@ -17,7 +17,9 @@ export default async function RootLayout({ children }: PropsWithChildren) {
           <div className="flex lg:flex-1">
             <Link href="/">
               Kakaroto 🍺
-              <span className="border-[2px] border-solid border-red-900 p-1 rounded ml-2">beta</span>
+              <span className="ml-2 rounded border-[2px] border-solid border-red-900 p-1">
+                beta
+              </span>
             </Link>
           </div>
           <div className="hidden lg:flex ">
@@ -35,7 +37,7 @@ export default async function RootLayout({ children }: PropsWithChildren) {
             </Link>
           </div>
           <div className="flex flex-1 items-center justify-end">
-            <AvatarMenu user={user} optionalComponentsClasses="lg:hidden" />
+            <AvatarMenu user={user} />
           </div>
         </nav>
       ) : (
