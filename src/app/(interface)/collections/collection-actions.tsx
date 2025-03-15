@@ -2,7 +2,7 @@
 
 import { type questionCollections } from "@/server/db/schema";
 import { useTransition } from "react";
-import { deleteCollection as _deleteCollection } from "@/server/db/actions";
+import { deleteCollection as _deleteCollection } from "@/server/db/collection-actions";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";

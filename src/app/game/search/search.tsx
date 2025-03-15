@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
-import { getCollesctions } from "@/server/db/actions";
+import { getCollesctions } from "@/server/db/collection-actions";
 import Collection from "@/components/kakaroto/collection";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import CollectionSkeleton from "@/components/kakaroto/loading";
@@ -59,19 +59,24 @@ export default function Search() {
 
   return (
     <>
-      <div className="flex relative h-fit mb-6">
+      <div className="relative mb-6 flex h-fit">
         <Input
           value={input}
           placeholder="Search ..."
           onChange={(e) => search(e.target.value)}
           ref={inputRef}
         />
-        {input && <button className="absolute right-4 top-[50%] translate-y-[-50%]" onClick={() => {
-          search("")
-          inputRef.current?.focus()
-        }}>
-          < IoClose />
-        </button>}
+        {input && (
+          <button
+            className="absolute right-4 top-[50%] translate-y-[-50%]"
+            onClick={() => {
+              search("");
+              inputRef.current?.focus();
+            }}
+          >
+            <IoClose />
+          </button>
+        )}
       </div>
 
       <SearchResults data={data} />

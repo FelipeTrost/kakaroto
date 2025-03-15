@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/server/db";
 import { and, eq } from "drizzle-orm";
 import { type createCollectionSchema } from "@/server/db/zod-schemas";
-import { updateCollection } from "@/server/db/actions";
+import { updateCollection } from "@/server/db/collection-actions";
 
 export default async function EditCollectionPage({
   params,

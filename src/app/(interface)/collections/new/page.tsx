@@ -1,6 +1,6 @@
 import { getServerAuthSession } from "@/server/auth";
 import { redirect } from "next/navigation";
-import { createColection } from "@/server/db/actions";
+import { createColection } from "@/server/db/collection-actions";
 import CollectionForm from "../collection-form";
 
 export default async function CreateCollectionPage() {

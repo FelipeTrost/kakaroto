@@ -1,4 +1,4 @@
-import { getCollesctions } from "@/server/db/actions";
+import { getCollesctions } from "@/server/db/collection-actions";
 import Search from "./search";
 import { z } from "zod";
 import { Suspense } from "react";
