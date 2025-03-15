@@ -38,7 +38,7 @@ export function CollectionSelectionDrawer() {
   const trigger = (
     <button
       onMouseDown={() => setOpen(true)}
-      className="sticky bottom-4 mt-4 flex w-full items-center justify-between rounded-xl bg-primary px-4 py-3 text-primary-foreground"
+      className="sticky bottom-4 mt-4 flex w-full items-center justify-between rounded-xl bg-primary px-4 py-2 text-primary-foreground"
     >
       {selectedCollections > 0 ? (
         <>
