@@ -1,12 +1,10 @@
 # Kakaroto
 
-## Goals
+[kakaro.to](kakaro.to)
 
-- [ ] Multiple player games
-- [ ] Customizable question collections for each game
-- [ ] Questions can be skipped
+## TODO
+
 - [ ] Keeping track of scores for those who completed the penalties -> winners and losers
-- [ ] Maintain a uniform distribution of participants
-- [ ] Maintain a uniform distribution of penalties
-- [ ] Questions include games
+- [ ] Ensure a uniform distribution of the challenges
 - [ ] (UI) One color for each participant
+- [ ] Improve referencing users in challenge builder
