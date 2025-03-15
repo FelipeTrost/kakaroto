@@ -80,7 +80,7 @@ export default function CollectionForm({
         });
       else if (response.type === "success") {
         toast({
-          description: "Collection created",
+          description: update ? "Collection updated" : "Collection created",
           title: "Success",
         });
         router.refresh();
