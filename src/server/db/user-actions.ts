@@ -1,7 +1,12 @@
 "use server";
 
 import { db } from ".";
-import { pinnedCollections, questionCollections, users } from "./schema";
+import {
+  accounts,
+  pinnedCollections,
+  questionCollections,
+  users,
+} from "./schema";
 import { getServerAuthSession } from "../auth";
 import { userResponse } from "../user-response";
 import { eq, sql } from "drizzle-orm";
@@ -23,6 +28,8 @@ export async function deleteUser() {
       await tx
         .delete(questionCollections)
         .where(eq(questionCollections.userId, userId));
+
+      await tx.delete(accounts).where(eq(accounts.userId, userId));
 
       const userResult = await tx
         .delete(users)
