@@ -17,15 +17,14 @@ import { TiPlus } from "react-icons/ti";
 import { BsCollectionFill } from "react-icons/bs";
 import { useToast } from "@/components/ui/use-toast";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import Link from "next/link";
 import { useState } from "react";
 import { buttonVariants } from "../ui/button";
@@ -106,21 +105,23 @@ export default function AvatarMenu({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog
+      <Dialog
         open={deleteAccountOpen}
         onOpenChange={(open) => setDeleteAccountOpen(open)}
       >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Account?</AlertDialogTitle>
-            <AlertDialogDescription>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Account?</DialogTitle>
+            <DialogDescription>
               This action cannot be undone. This will permanently delete your
               account and your collections.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose className={buttonVariants({ variant: "outline" })}>
+              Cancel
+            </DialogClose>
+            <DialogClose
               className={buttonVariants({ variant: "destructive" })}
               onClick={async (e) => {
                 e.preventDefault();
@@ -136,10 +137,10 @@ export default function AvatarMenu({
                 ])}
               />
               Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
