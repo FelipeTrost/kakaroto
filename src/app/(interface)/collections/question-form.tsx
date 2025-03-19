@@ -7,7 +7,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
+import { textAreaStyles } from "@/components/ui/textarea";
 import { parseQuestion } from "@/lib/game/parser";
 import { type createCollectionSchema } from "@/server/db/zod-schemas";
 import {
@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { type UseFieldArrayReturn, type UseFormReturn } from "react-hook-form";
 import { type z } from "zod";
-
 import {
   AccordionContent,
   AccordionItem,
@@ -28,6 +27,43 @@ import { MdDelete, MdInfo } from "react-icons/md";
 import { FaAngleDown, FaPlus } from "react-icons/fa";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import { RichTextarea } from "rich-textarea";
+import { generateColors } from "@/lib/colors";
+import { type ComponentProps, useMemo } from "react";
+
+function Textarea({
+  parsedText,
+  colors,
+  ...props
+}: ComponentProps<typeof RichTextarea> & {
+  parsedText: ReturnType<typeof parseQuestion>;
+  colors: string[];
+}) {
+  return (
+    <RichTextarea
+      placeholder="Everybody has to drink"
+      className={textAreaStyles}
+      style={{ width: "100%" }}
+      {...props}
+    >
+      {() => {
+        return parsedText.parts.map((part, idx) => {
+          if (typeof part === "string") return part;
+          return (
+            <span
+              key={idx}
+              style={{
+                backgroundColor: colors[part - 1],
+              }}
+            >
+              ${parsedText.players[part - 1]}
+            </span>
+          );
+        });
+      }}
+    </RichTextarea>
+  );
+}
 
 export default function QuestionForm({
   form,
@@ -44,6 +80,19 @@ export default function QuestionForm({
   const fieldValue = form.watch(`cards.${idx}`);
 
   const parsedQuestion = parseQuestion(fieldValue?.question ?? "");
+  const parsedChallengeEnd =
+    fieldValue.type === "ongoing"
+      ? parseQuestion(fieldValue.questionEnd || "")
+      : undefined;
+
+  const totalPlayes = Math.max(
+    parsedQuestion.nPlayers,
+    parsedChallengeEnd?.nPlayers ?? 0,
+  );
+  const colors = useMemo(
+    () => generateColors(totalPlayes, 100, 80),
+    [totalPlayes],
+  );
 
   function addUser(playerNo?: number) {
     if (!playerNo || !parsedQuestion.players.includes(playerNo))
@@ -149,27 +198,16 @@ export default function QuestionForm({
 
               <FormControl>
                 <Textarea
-                  placeholder="Everybody has to drink"
-                  className="border-x"
+                  placeholder=""
                   {...field}
+                  parsedText={parsedQuestion}
+                  colors={colors}
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-
-        {parsedQuestion.nPlayers > 0 && (
-          <>
-            <h2 className="mt-2">Challenge preview:</h2>
-            <div className="mb-8 min-h-[4ch] w-full rounded-md border px-3 py-2 text-base ring-ring ring-offset-2 ring-offset-background">
-              {parsedQuestion.parts.map((part, idx) => {
-                if (typeof part === "string") return part;
-                return <Badge key={idx}>Player {part}</Badge>;
-              })}
-            </div>
-          </>
-        )}
 
         {fieldValue?.type === "ongoing" && (
           <>
@@ -180,7 +218,12 @@ export default function QuestionForm({
                 <FormItem className="mb-8">
                   <FormLabel>Challenge End</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="" {...field} />
+                    <Textarea
+                      placeholder=""
+                      {...field}
+                      parsedText={parsedChallengeEnd!}
+                      colors={colors}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
