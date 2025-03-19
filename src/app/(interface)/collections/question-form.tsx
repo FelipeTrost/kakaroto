@@ -27,23 +27,26 @@ import { MdDelete, MdInfo } from "react-icons/md";
 import { FaAngleDown, FaPlus } from "react-icons/fa";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { RichTextarea } from "rich-textarea";
+import { RichTextarea, RichTextareaHandle } from "rich-textarea";
 import { generateColors } from "@/lib/colors";
-import { type ComponentProps, useMemo } from "react";
+import { type ComponentProps, forwardRef, useMemo, useRef } from "react";
 
 function Textarea({
   parsedText,
   colors,
+  textAreaRef,
   ...props
 }: ComponentProps<typeof RichTextarea> & {
   parsedText: ReturnType<typeof parseQuestion>;
   colors: string[];
+  textAreaRef?: React.Ref<RichTextareaHandle>;
 }) {
   return (
     <RichTextarea
       placeholder="Everybody has to drink"
       className={textAreaStyles}
       style={{ width: "100%" }}
+      ref={textAreaRef}
       {...props}
     >
       {() => {
@@ -95,18 +98,21 @@ export default function QuestionForm({
   );
 
   function addUser(playerNo?: number) {
-    if (!playerNo || !parsedQuestion.players.includes(playerNo))
-      playerNo = parsedQuestion.players.at(-1)
-        ? parsedQuestion.players.at(-1)! + 1
-        : 1;
+    if (!playerNo || !parsedQuestion.players.includes(playerNo)) {
+      const lastPlayer = parsedQuestion.players.at(-1);
+      playerNo = lastPlayer ? lastPlayer + 1 : 1;
+    }
 
     form.setValue(
       `cards.${idx}.question`,
-      (fieldValue?.question ?? "") + "$" + playerNo,
+      `${fieldValue?.question ?? ""} $${playerNo} `,
     );
 
     form.setFocus(`cards.${idx}.question`);
   }
+
+  const questionTextRef = useRef<RichTextareaHandle | null>(null);
+  const cahllengeEndTextRef = useRef<RichTextareaHandle | null>(null);
 
   return (
     <AccordionItem value={idx.toString()}>
@@ -163,7 +169,10 @@ export default function QuestionForm({
                 <Button
                   variant="secondary"
                   type="button"
-                  onClick={() => addUser()}
+                  onClick={() => {
+                    addUser();
+                    questionTextRef.current?.focus();
+                  }}
                   className={cn([
                     {
                       "rounded-r-none": parsedQuestion.nPlayers > 0,
@@ -187,7 +196,13 @@ export default function QuestionForm({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       {parsedQuestion.players.map((n, idx) => (
-                        <DropdownMenuItem key={n} onClick={() => addUser(n)}>
+                        <DropdownMenuItem
+                          key={n}
+                          onClick={() => {
+                            addUser(n);
+                            questionTextRef.current?.focus();
+                          }}
+                        >
                           {idx + 1}
                         </DropdownMenuItem>
                       ))}
@@ -202,6 +217,7 @@ export default function QuestionForm({
                   {...field}
                   parsedText={parsedQuestion}
                   colors={colors}
+                  textAreaRef={questionTextRef}
                 />
               </FormControl>
               <FormMessage />
@@ -223,6 +239,7 @@ export default function QuestionForm({
                       {...field}
                       parsedText={parsedChallengeEnd!}
                       colors={colors}
+                      textAreaRef={cahllengeEndTextRef}
                     />
                   </FormControl>
                   <FormMessage />
