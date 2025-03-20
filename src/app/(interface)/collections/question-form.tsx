@@ -68,6 +68,58 @@ function Textarea({
   );
 }
 
+function PlayerReferenceButtons({
+  parsedText,
+  addUser
+}:
+  {
+    addUser: (playerId?: number) => void
+    parsedText: ReturnType<typeof parseQuestion>;
+  }) {
+  return <div className="!mb-2 flex w-full max-w-full flex-row">
+    <Button
+      variant="secondary"
+      type="button"
+      onClick={() =>
+        addUser()
+      }
+      className={cn([
+        {
+          "rounded-r-none": parsedText.nPlayers > 0,
+        },
+      ])}
+    >
+      <FaPlus />
+    </Button>
+
+    {parsedText.nPlayers > 0 && (
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <Button
+            variant="secondary"
+            type="button"
+            disabled={parsedText.nPlayers === 0}
+            className="fadeIn rounded-l-none duration-300"
+          >
+            Reference Player <FaAngleDown className="ml-2" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {parsedText.players.map((n, idx) => (
+            <DropdownMenuItem
+              key={n}
+              onClick={() => addUser(n)}
+            >
+              {idx + 1}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    )
+    }
+  </div >
+}
+
 export default function QuestionForm({
   form,
   idx,
@@ -97,18 +149,13 @@ export default function QuestionForm({
     [totalPlayes],
   );
 
-  function addUser(playerNo?: number) {
-    if (!playerNo || !parsedQuestion.players.includes(playerNo)) {
-      const lastPlayer = parsedQuestion.players.at(-1);
+  function addUserToText(text: string | undefined, parsedText: ReturnType<typeof parseQuestion>, playerNo?: number) {
+    if (!playerNo || !parsedText.players.includes(playerNo)) {
+      const lastPlayer = parsedText.players.at(-1);
       playerNo = lastPlayer ? lastPlayer + 1 : 1;
     }
 
-    form.setValue(
-      `cards.${idx}.question`,
-      `${fieldValue?.question ?? ""} $${playerNo} `,
-    );
-
-    form.setFocus(`cards.${idx}.question`);
+    return `${text ?? ""} $${playerNo} `
   }
 
   const questionTextRef = useRef<RichTextareaHandle | null>(null);
@@ -165,51 +212,14 @@ export default function QuestionForm({
             <FormItem className="mb-8">
               <FormLabel>Challenge</FormLabel>
 
-              <div className="!mb-2 flex w-full max-w-full flex-row">
-                <Button
-                  variant="secondary"
-                  type="button"
-                  onClick={() => {
-                    addUser();
-                    questionTextRef.current?.focus();
-                  }}
-                  className={cn([
-                    {
-                      "rounded-r-none": parsedQuestion.nPlayers > 0,
-                    },
-                  ])}
-                >
-                  <FaPlus />
-                </Button>
-
-                {parsedQuestion.nPlayers > 0 && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger>
-                      <Button
-                        variant="secondary"
-                        type="button"
-                        disabled={parsedQuestion.nPlayers === 0}
-                        className="fadeIn rounded-l-none duration-300"
-                      >
-                        Reference Player <FaAngleDown className="ml-2" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      {parsedQuestion.players.map((n, idx) => (
-                        <DropdownMenuItem
-                          key={n}
-                          onClick={() => {
-                            addUser(n);
-                            questionTextRef.current?.focus();
-                          }}
-                        >
-                          {idx + 1}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </div>
+              <PlayerReferenceButtons
+                parsedText={parsedQuestion}
+                addUser={(id) => {
+                  const newText = addUserToText(fieldValue?.question, parsedQuestion, id);
+                  form.setValue(`cards.${idx}.question`, newText);
+                  questionTextRef.current?.focus();
+                }}
+              />
 
               <FormControl>
                 <Textarea
@@ -226,27 +236,33 @@ export default function QuestionForm({
         />
 
         {fieldValue?.type === "ongoing" && (
-          <>
-            <FormField
-              control={form.control}
-              name={`cards.${idx}.questionEnd`}
-              render={({ field }) => (
-                <FormItem className="mb-8">
-                  <FormLabel>Challenge End</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder=""
-                      {...field}
-                      parsedText={parsedChallengeEnd!}
-                      colors={colors}
-                      textAreaRef={cahllengeEndTextRef}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
+          <FormField
+            control={form.control}
+            name={`cards.${idx}.questionEnd`}
+            render={({ field }) => (
+              <FormItem className="mb-8">
+                <FormLabel>Challenge End</FormLabel>
+                <PlayerReferenceButtons
+                  parsedText={parsedChallengeEnd!}
+                  addUser={(id) => {
+                    const newText = addUserToText(fieldValue.questionEnd, parsedChallengeEnd!, id);
+                    form.setValue(`cards.${idx}.questionEnd`, newText);
+                    cahllengeEndTextRef.current?.focus();
+                  }}
+                />
+                <FormControl>
+                  <Textarea
+                    placeholder=""
+                    {...field}
+                    parsedText={parsedChallengeEnd!}
+                    colors={colors}
+                    textAreaRef={cahllengeEndTextRef}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         )}
       </AccordionContent>
     </AccordionItem>
