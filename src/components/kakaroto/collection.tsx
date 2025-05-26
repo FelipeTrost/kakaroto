@@ -17,8 +17,9 @@ export default function Collection({
 }) {
   return (
     <Card
-      className={cn("max-w-[85ch]", {
-        ["border-2 border-green-600"]: collection.pinned,
+      className={cn("max-w-[85ch] border-[1.5px]", {
+        ["border-transparent"]: collection.pinned,
+        ["outline outline-green-600"]: collection.pinned,
       })}
       {...cardProps}
     >
@@ -45,7 +46,7 @@ export default function Collection({
       </CardHeader>
 
       <CardContent
-        className={cn({ "px-4 pb-2": compact, "p-5 pt-0": collection.pinned })}
+        className={cn({ "px-4 pb-2": compact })}
       >
         <p>{collection.description}</p>
       </CardContent>
