@@ -91,10 +91,10 @@ export default function CollectionForm({
 
   return (
     <Form {...form}>
-      <div className="m-auto max-w-[30rem]">
+      <div className="m-auto max-w-[30rem] pb-4">
         <form
           onSubmit={form.handleSubmit(onSubmitHandler)}
-          className="space-y-8"
+          className="space-y-4"
         >
           <Tabs defaultValue="info">
             <TabsList className="grid w-full grid-cols-2">
