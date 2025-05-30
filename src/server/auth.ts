@@ -99,10 +99,7 @@ if (env.NODE_ENV === "development") {
               .execute()
           )[0];
 
-        const ret = testUser ?? null;
-        console.log(ret);
-
-        return ret;
+        return testUser!;
       },
     }),
   );

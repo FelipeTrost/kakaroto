@@ -8,7 +8,7 @@ export default function Collection({
   collection,
   rightNode,
   cardProps,
-  compact
+  compact,
 }: {
   collection: typeof questionCollections.$inferSelect & { pinned?: boolean };
   rightNode?: React.ReactNode;
@@ -16,8 +16,18 @@ export default function Collection({
   compact?: boolean;
 }) {
   return (
-    <Card className="max-w-[85ch]" {...cardProps}>
-      <CardHeader className={cn("flex flex-row justify-between gap-4", { "py-3 px-4": compact })}>
+    <Card
+      className={cn("max-w-[85ch] border-[1.5px]", {
+        ["border-transparent"]: collection.pinned,
+        ["outline outline-green-600"]: collection.pinned,
+      })}
+      {...cardProps}
+    >
+      <CardHeader
+        className={cn("flex flex-row justify-between gap-4", {
+          "px-4 py-3": compact,
+        })}
+      >
         <div className="min-w-0 flex-1">
           <CardTitle className="truncate text-xl">
             {collection.pinned && (
@@ -35,7 +45,9 @@ export default function Collection({
         <div className="w-fit">{rightNode}</div>
       </CardHeader>
 
-      <CardContent className={cn({ "pb-2 px-4": compact })}>
+      <CardContent
+        className={cn({ "px-4 pb-2": compact })}
+      >
         <p>{collection.description}</p>
       </CardContent>
     </Card>
