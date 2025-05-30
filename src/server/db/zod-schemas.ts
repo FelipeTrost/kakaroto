@@ -17,3 +17,4 @@ export const createCollectionSchema = z.object({
   description: z.string().min(1).max(1_000).nullable().catch(null),
   cards: z.array(cardSchema).min(1),
 });
+export type CreateCollectionSchema = z.infer<typeof createCollectionSchema>;
