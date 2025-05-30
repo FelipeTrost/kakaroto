@@ -39,14 +39,12 @@ export function parseQuestion(input: string) {
   }
   parts.push(input.substring(lastIdx));
 
-  const a = {
+  return {
     parts,
     nPlayers: sortedPlayers.length,
     players: sortedPlayers,
     playersSet: players,
-  };
-  console.log("parse", a);
-  return a as ParsedQuestion;
+  } as ParsedQuestion;
 }
 
 /**
