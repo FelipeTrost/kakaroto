@@ -4,9 +4,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { useGameStateStore } from "@/lib/game-state-store";
+import { GameStateStore, useGameStateStore } from "@/lib/game-state-store";
 import { useRouter } from "next/navigation";
-import { type FormEvent, useState, useEffect, useRef } from "react";
+import {
+  type FormEvent,
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  ReactNode,
+} from "react";
 import { IoCloseOutline } from "react-icons/io5";
 import { AnimatePresence } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,6 +22,7 @@ import BouncyDiv from "@/components/kakaroto/bouncy-div";
 import { ArrowLeft } from "lucide-react";
 import { MdPeople } from "react-icons/md";
 import { captureEvent, eventTypes } from "@/components/analytics-provider";
+import { displayChallenge } from "@/lib/game/parser";
 
 function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
   const [playerInput, setPlayerInput] = useState("");
@@ -84,11 +92,14 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
           {players.map((player) => (
             <Badge
               variant="secondary"
-              key={player}
+              key={player.name}
               className="flex w-fit flex-grow-0 items-center px-4 py-2 text-lg"
             >
-              <span>{player}</span>
-              <button onClick={() => removePlayer(player)} className="ml-2">
+              <span>{player.name}</span>
+              <button
+                onClick={() => removePlayer(player.name)}
+                className="ml-2"
+              >
                 <IoCloseOutline />
               </button>
             </Badge>
@@ -113,21 +124,66 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
   );
 }
 
-function DisplayChallenge({ display }: { display: string }) {
+function DisplayChallenge({
+  challenge,
+}: {
+  challenge: NonNullable<GameStateStore["currentChallenge"]>;
+}) {
   const [currentSegment, setCurrentSegment] = useState(0);
-  const segments = display.split("....");
-  const segmentCount = segments.length;
+
+  const [segments, segmentIndexes] = useMemo(() => {
+    const displayParts = displayChallenge(
+      [challenge.question],
+      challenge.selectedPlayers,
+    )[0]!;
+
+    const segments: ReactNode[] = [];
+    const segmentIndexes: number[] = [];
+
+    for (let i = 0; i < displayParts.length; i++) {
+      const part = displayParts[i];
+
+      if (typeof part == "string") {
+        const partsBetweenSplits = part.split("....");
+
+        if (partsBetweenSplits.length > 1) {
+          for (let j = 0; j < partsBetweenSplits.length; j++) {
+            if (partsBetweenSplits[j] !== "")
+              segments.push(partsBetweenSplits[j]);
+
+            if (j < partsBetweenSplits.length - 1)
+              segmentIndexes.push(segments.length);
+          }
+
+          continue;
+        }
+      }
+
+      segments.push(part);
+    }
+
+    // This only doesn't kick in if the question ends with a "...."
+    // In that case the last segmentIndex will be the end
+    if (segmentIndexes.at(-1)! !== segments.length)
+      segmentIndexes.push(segments.length);
+
+    return [segments, segmentIndexes];
+  }, [challenge]);
+
+  useEffect(() => {
+    setCurrentSegment(0);
+  }, [segments, segmentIndexes]);
 
   return (
     <div className="flex flex-col justify-start gap-4">
       <span className="m-0 max-w-full break-words text-xl">
-        {segments.splice(0, currentSegment + 1).map((segment) => (
-          <span key={segment} className="animate-fade-in">
+        {segments.slice(0, segmentIndexes[currentSegment]).map((segment, i) => (
+          <span key={i} className="animate-fade-in">
             {segment}
           </span>
         ))}
       </span>
-      {currentSegment < segmentCount - 1 && (
+      {currentSegment < segmentIndexes.length - 1 && (
         <Button
           onClick={() => setCurrentSegment((s) => s + 1)}
           variant="outline"
@@ -149,16 +205,13 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
     <section className="flex flex-grow flex-col justify-between">
       <div className="flex flex-grow items-center">
         <AnimatePresence>
-          <BouncyDiv
-            key={currentChallenge?.challengeDisplay}
-            className="w-full"
-          >
+          <BouncyDiv key={currentChallenge?.id} className="w-full">
             <Card className="w-full p-0">
               <CardContent className="px-4 py-10 md:px-14">
                 {currentChallenge && (
                   <DisplayChallenge
-                    display={currentChallenge?.challengeDisplay}
-                    key={currentChallenge?.challengeDisplay}
+                    challenge={currentChallenge}
+                    key={currentChallenge.id}
                   />
                 )}
               </CardContent>

@@ -1,5 +1,7 @@
 // TODO: refactor this file
 
+import { ReactNode } from "react";
+
 export type ParsedQuestion = {
   /** Strings represent a part of the question and numbers represent different players */
   parts: (string | number)[];
@@ -47,10 +49,15 @@ export function parseQuestion(input: string) {
   return a as ParsedQuestion;
 }
 
-// returns a list in order to get same number-> player mapping for ongoing challenges
-export function displayQuestion(challenges: string[], players: string[]) {
-  const displayQuestions = [];
+/**
+ * returns a list in order to get same number-> player mapping for ongoing challenges
+ * Array only actually used for ongoing challenges -> length=2
+ */
 
+export function selectPlayersForQuestion(
+  challenges: string[],
+  players: { name: string; color: string }[],
+) {
   // Get challenge with most players
   let mostPlayers: number[] = [];
   for (const challenge of challenges) {
@@ -60,7 +67,7 @@ export function displayQuestion(challenges: string[], players: string[]) {
   }
 
   // Compute mapping
-  const selectedPlayers = new Map<number, string>();
+  const selectedPlayers = new Map<number, { name: string; color: string }>();
   const playersLeft = [...players];
   for (const playerN of mostPlayers) {
     const p_idx = Math.floor(playersLeft.length * Math.random());
@@ -69,21 +76,39 @@ export function displayQuestion(challenges: string[], players: string[]) {
     selectedPlayers.set(playerN, player!);
   }
 
+  return [...selectedPlayers.entries()];
+}
+
+export function displayChallenge(
+  challenges: string[],
+  selectedPlayers: ReturnType<typeof selectPlayersForQuestion>,
+) {
+  const selectedPlayersMap = new Map(selectedPlayers);
+  const displayChallenges: ReactNode[][] = [];
+  const playerRegex = /(\$\d+)/;
+
   for (const challenge of challenges) {
-    const parsed = parseQuestion(challenge);
-    let challengeDisplay = challenge;
+    const challengeParts = challenge.split(playerRegex);
+    const parts = [];
 
-    for (const playerN of parsed.players) {
-      const player = selectedPlayers.get(playerN);
+    for (const part of challengeParts) {
+      if (!part.match(playerRegex)) {
+        parts.push(part);
+        continue;
+      }
 
-      challengeDisplay = challengeDisplay.replaceAll(
-        "$" + playerN,
-        player!,
+      const playerN = Number.parseInt(part.substring(1));
+      const player = selectedPlayersMap.get(playerN)!;
+
+      parts.push(
+        <span key={part} style={{ color: player.color }}>
+          {player.name}
+        </span>,
       );
     }
 
-    displayQuestions.push(challengeDisplay);
+    displayChallenges.push(parts);
   }
 
-  return displayQuestions;
+  return displayChallenges;
 }

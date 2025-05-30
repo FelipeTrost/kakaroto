@@ -1,13 +1,14 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { useState, useEffect } from "react";
-import { displayQuestion, parseQuestion } from "./game/parser";
+import { selectPlayersForQuestion, parseQuestion } from "@/lib/game/parser";
 import { type z } from "zod";
 import {
   type cardSchema,
   type createCollectionSchema,
 } from "@/server/db/zod-schemas";
 import { type questionCollections } from "@/server/db/schema";
+import { generateColors } from "./colors";
 
 type Prettify<T> = T extends (infer L)[]
   ? Prettify<L>[]
@@ -22,12 +23,12 @@ type CardOngoingEnd = Omit<Extract<Card, { type: "ongoing" }>, "type"> & {
 };
 
 type GameState = "started" | "finished" | "none";
-type GameStateStore = {
+export type GameStateStore = {
   state: GameState;
   roundNumber: number;
   totalRounds: number;
   selectedCollections: Collection[];
-  players: string[];
+  players: { name: string; color: string }[];
   addPlayer: (name: string) => void;
   removePlayer: (name: string) => void;
   setChallenges: (challenges: Collection[]) => void;
@@ -46,14 +47,14 @@ type GameStateStore = {
   currentChallenge:
     | Prettify<
         (Card | CardOngoingEnd) & {
-          challengeDisplay: string;
+          selectedPlayers: ReturnType<typeof selectPlayersForQuestion>;
           id: number;
         }
       >
     | undefined;
   ongoingChallenges: (Exclude<Card, { type: "normal" }> & {
     endRound: number;
-    endDisplay: string;
+    selectedPlayers: ReturnType<typeof selectPlayersForQuestion>;
     id: number;
   })[];
   reset: () => void;
@@ -62,6 +63,7 @@ type GameStateStore = {
 function noop(...args: unknown[]) {
   args;
 }
+
 const defaultGameState = {
   state: "none",
   roundNumber: 0,
@@ -101,11 +103,22 @@ const gameStateStore = create<GameStateStore>()(
       players: [],
       addPlayer: (name) =>
         set((prev) => {
-          if (prev.players.includes(name)) return prev;
-          return { players: prev.players.concat(name) };
+          if (prev.players.find((entry) => entry.name === name)) return prev;
+
+          // recompute colors
+          const colors = [...generateColors(prev.players.length + 1)];
+          for (let i = 0; i < prev.players.length; i++) {
+            const colorIdx = Math.floor(Math.random() * colors.length);
+            prev.players[i]!.color = colors[colorIdx]!;
+            colors.splice(colorIdx, 1);
+          }
+
+          return { players: prev.players.concat({ name, color: colors[0]! }) };
         }),
       removePlayer: (name) =>
-        set((prev) => ({ players: prev.players.filter((p) => p !== name) })),
+        set((prev) => ({
+          players: prev.players.filter((p) => p.name !== name),
+        })),
       setChallenges: (challenges) => set({ selectedCollections: challenges }),
       addChallenge: (challenge) =>
         set((prev) => {
@@ -155,12 +168,13 @@ const gameStateStore = create<GameStateStore>()(
         }
 
         const compatibleChallenges = [];
-        for (const card of gameCards)
+        for (const card of gameCards) {
           if (
             !state.playedCards.find((n) => n === card.id) &&
             parseQuestion(card.question).nPlayers <= nPlayers
           )
             compatibleChallenges.push(card);
+        }
 
         set({
           cardsLeft: compatibleChallenges,
@@ -181,6 +195,7 @@ const gameStateStore = create<GameStateStore>()(
       nextChallenge: () => {
         const state = get();
 
+        // Check if a challenge ended
         let endedChallengeIdx;
         for (let i = 0; i < state.ongoingChallenges.length; i++) {
           if (state.ongoingChallenges[i]!.endRound <= state.roundNumber) {
@@ -203,7 +218,6 @@ const gameStateStore = create<GameStateStore>()(
           set({
             currentChallenge: {
               ...endedChallenge,
-              challengeDisplay: endedChallenge.endDisplay,
               type: "ongoing-end",
             },
             ongoingChallenges: state.ongoingChallenges.toSpliced(
@@ -229,19 +243,23 @@ const gameStateStore = create<GameStateStore>()(
 
         // normal challenge
         if (challenge.type === "normal") {
-          const challengeDisplay = displayQuestion(
+          const selectedPlayers = selectPlayersForQuestion(
             [challenge.question],
             state.players,
-          )[0]!;
+          );
+
           set({
-            currentChallenge: { ...challenge, challengeDisplay },
+            currentChallenge: {
+              ...challenge,
+              selectedPlayers,
+            },
             roundNumber: state.roundNumber + 1,
           });
           return true;
         }
 
         // ongoing challenge
-        const challengeDisplay = displayQuestion(
+        const selectedPlayers = selectPlayersForQuestion(
           [challenge.question, challenge.questionEnd],
           state.players,
         );
@@ -259,13 +277,13 @@ const gameStateStore = create<GameStateStore>()(
         set({
           currentChallenge: {
             ...challenge,
-            challengeDisplay: challengeDisplay[0]!,
+            selectedPlayers: selectedPlayers,
           },
           roundNumber: state.roundNumber + 1,
           ongoingChallenges: state.ongoingChallenges.concat({
             ...challenge,
             endRound: state.roundNumber + roundsToChallengeEnd,
-            endDisplay: challengeDisplay[1]!,
+            selectedPlayers,
           }),
         });
 
