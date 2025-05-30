@@ -37,6 +37,10 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
   const checkPlayersAndSetCards =
     useGameStateStore.use.checkPlayersAndSetCards();
 
+  useEffect(() => {
+    if (!inGameClose) inputRef.current?.focus();
+  }, [inGameClose]);
+
   function addPlayer(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const player = playerInput.trim();
