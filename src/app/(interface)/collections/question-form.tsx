@@ -69,55 +69,48 @@ function Textarea({
 }
 
 function PlayerReferenceButtons({
-  parsedText,
-  addUser
-}:
-  {
-    addUser: (playerId?: number) => void
-    parsedText: ReturnType<typeof parseQuestion>;
-  }) {
-  return <div className="!mb-2 flex w-full max-w-full flex-row">
-    <Button
-      variant="secondary"
-      type="button"
-      onClick={() =>
-        addUser()
-      }
-      className={cn([
-        {
-          "rounded-r-none": parsedText.nPlayers > 0,
-        },
-      ])}
-    >
-      <FaPlus />
-    </Button>
-
-    {parsedText.nPlayers > 0 && (
-      <DropdownMenu>
-        <DropdownMenuTrigger>
-          <Button
-            variant="secondary"
-            type="button"
-            disabled={parsedText.nPlayers === 0}
-            className="fadeIn rounded-l-none duration-300"
-          >
-            Reference Player <FaAngleDown className="ml-2" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          {parsedText.players.map((n, idx) => (
-            <DropdownMenuItem
-              key={n}
-              onClick={() => addUser(n)}
+  players,
+  addUser,
+}: {
+  players: number[];
+  addUser: (playerId?: number) => void;
+}) {
+  return (
+    <div className="!mb-2 flex w-full max-w-full flex-row">
+      <Button
+        variant="secondary"
+        type="button"
+        onClick={() => addUser()}
+        className={cn([
+          {
+            "rounded-r-none": players.length > 0,
+          },
+        ])}
+      >
+        <FaPlus />
+      </Button>
+      {players.length > 0 && (
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button
+              variant="secondary"
+              type="button"
+              className="fadeIn rounded-l-none duration-300"
             >
-              {idx + 1}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    )
-    }
-  </div >
+              Reference Player <FaAngleDown className="ml-2" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {players.map((player) => (
+              <DropdownMenuItem key={player} onClick={() => addUser(player)}>
+                {player}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
+    </div>
+  );
 }
 
 export default function QuestionForm({
@@ -140,23 +133,16 @@ export default function QuestionForm({
       ? parseQuestion(fieldValue.questionEnd || "")
       : undefined;
 
-  const totalPlayes = Math.max(
-    parsedQuestion.nPlayers,
-    parsedChallengeEnd?.nPlayers ?? 0,
+  const playersSet = new Set<number>(
+    parsedQuestion.players.concat(parsedChallengeEnd?.players ?? []),
   );
+
+  const allPlayers = Array.from(playersSet.values()).sort((a, b) => a - b);
+
   const colors = useMemo(
-    () => generateColors(totalPlayes, 100, 80),
-    [totalPlayes],
+    () => generateColors(allPlayers.length, 100, 80),
+    [allPlayers.length],
   );
-
-  function addUserToText(text: string | undefined, parsedText: ReturnType<typeof parseQuestion>, playerNo?: number) {
-    if (!playerNo || !parsedText.players.includes(playerNo)) {
-      const lastPlayer = parsedText.players.at(-1);
-      playerNo = lastPlayer ? lastPlayer + 1 : 1;
-    }
-
-    return `${text ?? ""} $${playerNo} `
-  }
 
   const questionTextRef = useRef<RichTextareaHandle | null>(null);
   const cahllengeEndTextRef = useRef<RichTextareaHandle | null>(null);
@@ -213,9 +199,19 @@ export default function QuestionForm({
               <FormLabel>Challenge</FormLabel>
 
               <PlayerReferenceButtons
-                parsedText={parsedQuestion}
-                addUser={(id) => {
-                  const newText = addUserToText(fieldValue?.question, parsedQuestion, id);
+                players={allPlayers}
+                addUser={(playerNo) => {
+                  const prevText = fieldValue.question;
+
+                  if (!playerNo) {
+                    const lastPlayer = allPlayers.at(-1);
+                    playerNo = lastPlayer ? lastPlayer + 1 : 1;
+                  }
+
+                  const newText = prevText
+                    ? `${prevText} $${playerNo} `
+                    : `$${playerNo} `;
+
                   form.setValue(`cards.${idx}.question`, newText);
                   questionTextRef.current?.focus();
                 }}
@@ -243,9 +239,19 @@ export default function QuestionForm({
               <FormItem className="mb-8">
                 <FormLabel>Challenge End</FormLabel>
                 <PlayerReferenceButtons
-                  parsedText={parsedChallengeEnd!}
-                  addUser={(id) => {
-                    const newText = addUserToText(fieldValue.questionEnd, parsedChallengeEnd!, id);
+                  players={allPlayers}
+                  addUser={(playerNo) => {
+                    const prevText = field.value;
+
+                    if (!playerNo) {
+                      const lastPlayer = allPlayers.at(-1);
+                      playerNo = lastPlayer ? lastPlayer + 1 : 1;
+                    }
+
+                    const newText = prevText
+                      ? `${prevText} $${playerNo} `
+                      : `$${playerNo} `;
+
                     form.setValue(`cards.${idx}.questionEnd`, newText);
                     cahllengeEndTextRef.current?.focus();
                   }}
