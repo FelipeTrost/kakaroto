@@ -59,7 +59,7 @@ export default function CollectionForm({
 }) {
   const [submitting, startSubmitTransition] = useTransition();
   const params = useParams<{ collectionId: string }>();
-  const id = Number(decodeURIComponent(params.collectionId)) || 0;
+  const id = Number(decodeURIComponent(params.collectionId)) || -1;
 
   const { toast } = useToast();
   const router = useRouter();
@@ -80,22 +80,20 @@ export default function CollectionForm({
     name: "cards",
   });
 
-  const previousValues = persistFormStateStore((state) => state.hasState());
+  const previousValues = persistFormStateStore((state) => state.hasState(id));
   const [previousValuesAcknowledged, setPreviousValuesAcknowledged] =
     useState(false);
 
   useEffect(() => {
-    if (!update) {
-      const subscription = form.watch((value) => {
-        setPreviousValuesAcknowledged(true);
-        persistFormStateStore
-          .getState()
-          .setState(value as CreateCollectionSchema);
-      });
+    const subscription = form.watch((value) => {
+      setPreviousValuesAcknowledged(true);
+      persistFormStateStore
+        .getState()
+        .setState(value as CreateCollectionSchema, id);
+    });
 
-      return () => subscription.unsubscribe();
-    }
-  }, [form, update]);
+    return () => subscription.unsubscribe();
+  }, [form, update, id]);
 
   const [accordionIdx, setAccordionIdx] = useState("0");
 
@@ -237,10 +235,10 @@ export default function CollectionForm({
       </Form>
 
       <Dialog
-        open={previousValues && !previousValuesAcknowledged && !update}
+        open={previousValues && !previousValuesAcknowledged}
         onOpenChange={(open) => {
           setPreviousValuesAcknowledged(!open);
-          persistFormStateStore.getState().resetState();
+          persistFormStateStore.getState().resetState(id);
         }}
       >
         <DialogContent>
@@ -253,11 +251,13 @@ export default function CollectionForm({
           </DialogHeader>
           <DialogFooter>
             <DialogClose className={buttonVariants({ variant: "outline" })}>
-              Start over
+              Discard changes
             </DialogClose>
             <DialogClose
               className={buttonVariants({ variant: "default" })}
-              onClick={() => form.reset(persistFormStateStore.getState().state)}
+              onClick={() =>
+                form.reset(persistFormStateStore.getState().state[id])
+              }
             >
               Continue editing
             </DialogClose>
