@@ -33,11 +33,13 @@ import { type ComponentProps, forwardRef, useMemo, useRef } from "react";
 
 function Textarea({
   parsedText,
+  allPlayers,
   colors,
   textAreaRef,
   ...props
 }: ComponentProps<typeof RichTextarea> & {
   parsedText: ReturnType<typeof parseQuestion>;
+  allPlayers: number[];
   colors: string[];
   textAreaRef?: React.Ref<RichTextareaHandle>;
 }) {
@@ -50,16 +52,21 @@ function Textarea({
       {...props}
     >
       {() => {
-        return parsedText.parts.map((part, idx) => {
-          if (typeof part === "string") return part;
+        return parsedText.parts.map((playerIdx, idx) => {
+          // In this case it's just a part of the question
+          if (typeof playerIdx === "string") return playerIdx;
+
+          const player = parsedText.players[playerIdx - 1]!;
+          const colorIdx = allPlayers.indexOf(player);
+
           return (
             <span
               key={idx}
               style={{
-                backgroundColor: colors[part - 1],
+                backgroundColor: colors[colorIdx],
               }}
             >
-              ${parsedText.players[part - 1]}
+              ${player}
             </span>
           );
         });
@@ -221,6 +228,7 @@ export default function QuestionForm({
                 <Textarea
                   placeholder=""
                   {...field}
+                  allPlayers={allPlayers}
                   parsedText={parsedQuestion}
                   colors={colors}
                   textAreaRef={questionTextRef}
@@ -260,6 +268,7 @@ export default function QuestionForm({
                   <Textarea
                     placeholder=""
                     {...field}
+                    allPlayers={allPlayers}
                     parsedText={parsedChallengeEnd!}
                     colors={colors}
                     textAreaRef={cahllengeEndTextRef}
