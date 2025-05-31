@@ -1,7 +1,7 @@
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import { type ComponentProps } from "react";
 
-const divVariants = {
+const divVariants: Variants = {
   hidden: {
     opacity: 0,
     y: 50,
@@ -12,7 +12,7 @@ const divVariants = {
     y: 0,
     rotateX: 0,
     transition: {
-      duration: 0.5,
+      duration: 0.2,
       type: "spring",
       stiffness: 120,
     },
