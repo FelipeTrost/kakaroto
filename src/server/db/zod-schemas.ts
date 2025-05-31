@@ -2,12 +2,12 @@ import { z } from "zod";
 
 export const cardSchema = z.discriminatedUnion("type", [
   z.object({
-    question: z.string().min(5).max(255),
+    question: z.string().min(5).max(500),
     type: z.literal("normal"),
   }),
   z.object({
     question: z.string().min(5).max(255),
-    questionEnd: z.string().min(5).max(255),
+    questionEnd: z.string().min(5).max(500),
     type: z.literal("ongoing"),
   }),
 ]);
