@@ -108,7 +108,7 @@ export default function CollectionForm({
           title: "Error",
         });
       else if (response.type === "success") {
-        if (!update) persistFormStateStore.getState().resetState();
+        persistFormStateStore.getState().resetState(id);
 
         toast({
           description: update ? "Collection updated" : "Collection created",
