@@ -147,7 +147,7 @@ export default function QuestionForm({
   const allPlayers = Array.from(playersSet.values()).sort((a, b) => a - b);
 
   const colors = useMemo(
-    () => generateColors(allPlayers.length, 100, 80),
+    () => generateColors(allPlayers.length),
     [allPlayers.length],
   );
 
