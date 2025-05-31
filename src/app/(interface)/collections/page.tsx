@@ -37,7 +37,7 @@ async function Collections() {
 export default function CreateCollectionPage() {
   return (
     <main>
-      <section className="container pb-10 pt-4 lg:pt-20">
+      <section className="pb-10 pt-4 lg:pt-20">
         <h2 className="mb-8 text-4xl font-extrabold leading-none tracking-tight text-gray-900 dark:text-white md:text-5xl lg:text-6xl">
           Your collections
         </h2>
