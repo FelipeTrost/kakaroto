@@ -44,6 +44,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { FaPlus } from "react-icons/fa";
 
 export default function CollectionForm({
   defaultValues,
@@ -187,7 +188,7 @@ export default function CollectionForm({
               <TabsContent value="questions">
                 <Card>
                   <CardHeader>
-                    <CardTitle> Questions</CardTitle>
+                    <CardTitle>Challenges</CardTitle>
                   </CardHeader>
                   <CardContent className="flex flex-col gap-4">
                     <Accordion
@@ -215,7 +216,8 @@ export default function CollectionForm({
                         setAccordionIdx(fieldArray.fields.length.toString());
                       }}
                     >
-                      Add Question
+                      <FaPlus className="mr-2" />
+                      Add challenge
                     </Button>
                   </CardFooter>
                 </Card>
