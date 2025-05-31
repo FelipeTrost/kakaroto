@@ -58,12 +58,16 @@ export default function CollectionForm({
   defaultValues?: CreateCollectionSchema;
   update?: boolean;
 }) {
-  const [submitting, startSubmitTransition] = useTransition();
-  const params = useParams<{ collectionId: string }>();
-  const id = Number(decodeURIComponent(params.collectionId)) || -1;
-
   const { toast } = useToast();
   const router = useRouter();
+
+  // =================================
+  // Form state & data
+  // =================================
+  const params = useParams<{ collectionId: string }>();
+  const id = Number(decodeURIComponent(params.collectionId)) || -1;
+  const [currentTab, setCurrentTab] = useState("info");
+  const [accordionIdx, setAccordionIdx] = useState("0");
 
   const form = useForm<CreateCollectionSchema>({
     resolver: zodResolver(createCollectionSchema),
@@ -72,15 +76,63 @@ export default function CollectionForm({
     },
   });
 
-  const errors = form.formState.errors;
-  const infoError = errors.title ?? errors.description;
-  const questionsError = errors.cards;
-
   const fieldArray = useFieldArray({
     control: form.control,
     name: "cards",
   });
 
+  // =================================
+  // Form errors
+  // =================================
+  const errors = form.formState.errors;
+  const infoError = errors.title ?? errors.description;
+  const questionsError = errors.cards;
+
+  function goToError(_errors: typeof form.formState.errors) {
+    const infoError = _errors.title ?? _errors.description;
+    const questionsError = _errors.cards;
+
+    if (!(infoError && questionsError)) {
+      if (infoError) {
+        setCurrentTab("info");
+      } else if (questionsError) {
+        setCurrentTab("questions");
+
+        const challengeIdx = questionsError.findIndex?.((val) => !!val);
+        if (challengeIdx) setAccordionIdx(challengeIdx.toString());
+      }
+    }
+  }
+
+  // =================================
+  // Submit form
+  // =================================
+  const [submitting, startSubmitTransition] = useTransition();
+  function onSubmitHandler(values: z.infer<typeof createCollectionSchema>) {
+    startSubmitTransition(async () => {
+      const response = await onSubmit(values, id);
+
+      if (response.type === "error") {
+        toast({
+          description: "Something went wrong",
+          title: "Error",
+        });
+      } else if (response.type === "success") {
+        persistFormStateStore.getState().resetState(id);
+
+        toast({
+          description: update ? "Collection updated" : "Collection created",
+          title: "Success",
+        });
+        router.refresh();
+        router.push("/collections");
+      }
+    });
+  }
+
+  // =================================
+  // Store from state
+  // =================================
   const previousValues = persistFormStateStore((state) => state.hasState(id));
   const [previousValuesAcknowledged, setPreviousValuesAcknowledged] =
     useState(false);
@@ -96,39 +148,18 @@ export default function CollectionForm({
     return () => subscription.unsubscribe();
   }, [form, update, id]);
 
-  const [accordionIdx, setAccordionIdx] = useState("0");
-
-  function onSubmitHandler(values: z.infer<typeof createCollectionSchema>) {
-    startSubmitTransition(async () => {
-      const response = await onSubmit(values, id);
-
-      if (response.type === "error")
-        toast({
-          description: "Something went wrong",
-          title: "Error",
-        });
-      else if (response.type === "success") {
-        persistFormStateStore.getState().resetState(id);
-
-        toast({
-          description: update ? "Collection updated" : "Collection created",
-          title: "Success",
-        });
-        router.refresh();
-        router.push("/collections");
-      }
-    });
-  }
-
   return (
     <>
       <Form {...form}>
         <div className="m-auto max-w-[30rem] pb-4">
           <form
-            onSubmit={form.handleSubmit(onSubmitHandler)}
+            onSubmit={form.handleSubmit(onSubmitHandler, goToError)}
             className="space-y-4"
           >
-            <Tabs defaultValue="info">
+            <Tabs
+              value={currentTab}
+              onValueChange={(value) => setCurrentTab(value)}
+            >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="info" className="relative">
                   Info
@@ -211,7 +242,8 @@ export default function CollectionForm({
                   <CardFooter>
                     <Button
                       variant="outline"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault(); // don't submit the form
                         fieldArray.append({ question: "", type: "normal" });
                         setAccordionIdx(fieldArray.fields.length.toString());
                       }}
