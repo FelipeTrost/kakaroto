@@ -23,6 +23,7 @@ import { ArrowLeft } from "lucide-react";
 import { MdPeople } from "react-icons/md";
 import { captureEvent, eventTypes } from "@/components/analytics-provider";
 import { displayChallenge } from "@/lib/game/parser";
+import * as motion from "motion/react-client";
 
 function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
   const [playerInput, setPlayerInput] = useState("");
@@ -179,7 +180,7 @@ function DisplayChallenge({
   }, [segments, segmentIndexes]);
 
   return (
-    <BouncyDiv key={challenge.id} className="w-full" delay>
+    <BouncyDiv key={challenge.id} className="w-full">
       <Card className="w-full p-0">
         <CardContent className="px-4 py-10 md:px-14">
           <div className="flex flex-col justify-start gap-4">
@@ -240,7 +241,9 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
             Skip
           </Button>
         )}
-        <Button onClick={nextChallenge}>Next card</Button>
+        <motion.div whileTap={{ scale: 0.85 }}>
+          <Button onClick={nextChallenge}>Next card</Button>
+        </motion.div>
       </div>
     </section>
   );
@@ -254,7 +257,9 @@ function FinishedScreen() {
           <h1 className="text-3xl font-bold text-foreground">That's it 🎉</h1>
           <p className="text-muted-foreground">Hope you had fun</p>
           <Link href="/game/search">
-            <Button variant="default">New Game</Button>
+            <motion.div whileTap={{ scale: 0.85 }}>
+              <Button variant="default">New Game</Button>
+            </motion.div>
           </Link>
         </div>
       </BouncyDiv>
