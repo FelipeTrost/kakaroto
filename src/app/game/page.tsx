@@ -228,6 +228,7 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
         <Button variant="secondary" onClick={openPlayerManagement}>
           <MdPeople className="mr-2" /> Players
         </Button>
+        <Button onClick={nextChallenge}>Next card</Button>
         {currentChallenge?.type === "ongoing" && (
           <Button
             onClick={() => {
@@ -238,7 +239,6 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
             Skip
           </Button>
         )}
-        <Button onClick={nextChallenge}>Next card</Button>
       </div>
     </section>
   );
