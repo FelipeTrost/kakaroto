@@ -1,11 +1,62 @@
 "use client";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, AlertCircle } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { ComponentProps } from "react";
+
+function AuthButton(props: ComponentProps<typeof Button>) {
+  return (
+    <Button
+      variant="outline"
+      className="m-auto mb-3 flex h-14 w-full max-w-sm items-center justify-center px-4 py-2 text-lg font-semibold shadow transition-all hover:bg-secondary hover:shadow-lg"
+      {...props}
+    />
+  );
+}
+
+const serverErrors = [
+  "OAuthSignin", // Error in constructing an authorization URL (1, 2, 3),
+  "OAuthCallback", // Error in handling the response (1, 2, 3) from an OAuth provider.
+  "OAuthCreateAccount", // Could not create OAuth provider user in the database.
+  "EmailCreateAccount", // Could not create email provider user in the database.
+  "EmailSignin", // Sending the e-mail with the verification token failed
+  "Callback", // Error in the OAuth callback handler route
+];
+
+// const unknownError = [
+//   "Default", // Catch all, will apply, if none of the above matched
+// ];
+
+const unauthorizedError = [
+  "CredentialsSignin", // The authorize callback returned null in the Credentials provider. We don't recommend providing information about which part of the credentials were wrong, as it might be abused by malicious hackers.
+];
+
+const differentAccount = "OAuthAccountNotLinked"; // If the email on the account is already linked, but not with this OAuth account
 
 export default function Page() {
+  let errorMessage = null;
+
+  if (typeof window !== "undefined") {
+    const searchParams = new URL(window.location.href);
+    const error = searchParams.searchParams.get("error");
+
+    if (error) {
+      if (serverErrors.includes(error)) {
+        errorMessage = "There was an error on our side. Please try again.";
+      } else if (unauthorizedError.includes(error)) {
+        errorMessage = "Invalid credentials. Please try again.";
+      } else if (differentAccount === error) {
+        errorMessage =
+          "This email is already linked to another account. Please use a different email or sign in with that account.";
+      } else {
+        errorMessage = "Something went wrong. Please try again.";
+      }
+    }
+  }
+
   return (
     <main>
       <Button asChild variant="ghost" className="mt-4">
@@ -13,7 +64,7 @@ export default function Page() {
           <ArrowLeft className="mr-4" /> Back to landing page
         </Link>
       </Button>
-      <div className="flex min-h-[80vh] flex-col items-center justify-center gap-8 p-8">
+      <div className="flex min-h-[70vh] flex-col items-center justify-center gap-8 ">
         <div className="flex flex-col gap-3">
           <h1
             style={{ lineHeight: 1.5 }}
@@ -26,13 +77,16 @@ export default function Page() {
           </h1>
           <p>Sign in below to create your own collections</p>
         </div>
+        {errorMessage && (
+          <Alert variant="destructive">
+            <AlertCircle className="pr-1" />
+            <AlertTitle>Something went wrong</AlertTitle>
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
+        )}
 
-        <div>
-          <Button
-            variant="outline"
-            className="mb-3 inline-flex h-14 w-full max-w-sm items-center justify-center gap-2 whitespace-nowrap p-2 px-4 py-2 text-lg font-semibold shadow transition-all hover:bg-secondary hover:shadow-lg"
-            onClick={() => signIn("google")}
-          >
+        <div className="w-full">
+          <AuthButton onClick={() => signIn("google")}>
             <svg
               className="mr-3 h-6 w-6"
               viewBox="0 0 24 24"
@@ -56,18 +110,14 @@ export default function Page() {
               />
             </svg>
             Continue with Google
-          </Button>
+          </AuthButton>
 
-          <Button
-            variant="outline"
-            className="mb-3 inline-flex h-14 w-full max-w-sm items-center justify-center gap-3 whitespace-nowrap p-2 px-4 py-2 text-lg font-semibold shadow transition-all hover:bg-secondary hover:shadow-lg"
-            onClick={() => signIn()}
-          >
+          <AuthButton onClick={() => signIn("discord")}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               preserveAspectRatio="xMidYMid"
               viewBox="0 0 256 199"
-              className="h-[24px] w-[24px]"
+              className="mr-3 h-6 w-6"
             >
               <path
                 fill="#5865F2"
@@ -75,7 +125,23 @@ export default function Page() {
               />
             </svg>
             Continue with Discord
-          </Button>
+          </AuthButton>
+
+          {process.env.NODE_ENV === "development" && (
+            <AuthButton onClick={() => signIn("test-user")}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                className="h-6 w-6"
+              >
+                <path
+                  fill="currentColor"
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-6h2v6zm0-8h-2V7h2v4z"
+                />
+              </svg>
+              Continue with Credentials
+            </AuthButton>
+          )}
         </div>
       </div>
     </main>

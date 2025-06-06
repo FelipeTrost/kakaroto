@@ -74,11 +74,16 @@ const _authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+  pages: {
+    signIn: "/signin",
+    error: "/signin",
+  }
 };
 
 if (env.NODE_ENV === "development") {
   _authOptions.providers.push(
     Credentials({
+      id: "test-user",
       name: "test-user",
       credentials: {},
       async authorize() {
