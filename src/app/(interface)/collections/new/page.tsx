@@ -7,7 +7,8 @@ export default async function CreateCollectionPage() {
   const session = await getServerAuthSession();
   const user = session?.user;
 
-  if (!user) redirect("/api/auth/signin?callbackUrl=/collections/new");
+  if (!user)
+    redirect(`/signin?callbackUrl=${encodeURIComponent("/collections/new")}`);
 
   return (
     <main>
