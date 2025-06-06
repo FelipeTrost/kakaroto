@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, AlertCircle } from "lucide-react";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ComponentProps } from "react";
 
 function AuthButton(props: ComponentProps<typeof Button>) {
@@ -37,10 +38,9 @@ const unauthorizedError = [
 const differentAccount = "OAuthAccountNotLinked"; // If the email on the account is already linked, but not with this OAuth account
 
 export default function Page() {
-  const searchParams =
-    typeof window !== "undefined" ? new URL(window.location.href) : undefined;
+  const searchParams = useSearchParams();
 
-  const error = searchParams?.searchParams.get("error");
+  const error = searchParams.get("error");
   let errorMessage = null;
   if (error) {
     if (serverErrors.includes(error)) {
@@ -55,8 +55,7 @@ export default function Page() {
     }
   }
 
-  const callbackUrl =
-    searchParams?.searchParams.get("callbackUrl") ?? undefined;
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
 
   return (
     <main>
