@@ -55,7 +55,7 @@ export default function Page() {
     }
   }
 
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+  const callbackUrl = "/collections/new";
 
   return (
     <main>
