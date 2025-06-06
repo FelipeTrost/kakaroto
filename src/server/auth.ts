@@ -77,7 +77,7 @@ const _authOptions: NextAuthOptions = {
   pages: {
     signIn: "/signin",
     error: "/signin",
-  }
+  },
 };
 
 if (env.NODE_ENV === "development") {
@@ -87,24 +87,29 @@ if (env.NODE_ENV === "development") {
       name: "test-user",
       credentials: {},
       async authorize() {
-        let testUser = await db.query.users.findFirst({
-          where: (collection, { eq }) => eq(collection.id, "test-user"),
-        });
+        try {
+          let testUser = await db.query.users.findFirst({
+            where: (collection, { eq }) => eq(collection.id, "test-user"),
+          });
 
-        if (!testUser)
-          testUser = (
-            await db
-              .insert(users)
-              .values({
-                name: "Test User",
-                email: "test@test.com",
-                id: "test-user",
-              })
-              .returning()
-              .execute()
-          )[0];
+          if (!testUser)
+            testUser = (
+              await db
+                .insert(users)
+                .values({
+                  name: "Test User",
+                  email: "test@test.com",
+                  id: "test-user",
+                })
+                .returning()
+                .execute()
+            )[0];
 
-        return testUser!;
+          return testUser!;
+        } catch (e) {
+          console.error(e);
+          return null;
+        }
       },
     }),
   );
