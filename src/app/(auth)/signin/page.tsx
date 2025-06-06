@@ -37,25 +37,26 @@ const unauthorizedError = [
 const differentAccount = "OAuthAccountNotLinked"; // If the email on the account is already linked, but not with this OAuth account
 
 export default function Page() {
+  const searchParams =
+    typeof window !== "undefined" ? new URL(window.location.href) : undefined;
+
+  const error = searchParams?.searchParams.get("error");
   let errorMessage = null;
-
-  if (typeof window !== "undefined") {
-    const searchParams = new URL(window.location.href);
-    const error = searchParams.searchParams.get("error");
-
-    if (error) {
-      if (serverErrors.includes(error)) {
-        errorMessage = "There was an error on our side. Please try again.";
-      } else if (unauthorizedError.includes(error)) {
-        errorMessage = "Invalid credentials. Please try again.";
-      } else if (differentAccount === error) {
-        errorMessage =
-          "This email is already linked to another account. Please use a different email or sign in with that account.";
-      } else {
-        errorMessage = "Something went wrong. Please try again.";
-      }
+  if (error) {
+    if (serverErrors.includes(error)) {
+      errorMessage = "There was an error on our side. Please try again.";
+    } else if (unauthorizedError.includes(error)) {
+      errorMessage = "Invalid credentials. Please try again.";
+    } else if (differentAccount === error) {
+      errorMessage =
+        "This email is already linked to another account. Please use a different email or sign in with that account.";
+    } else {
+      errorMessage = "Something went wrong. Please try again.";
     }
   }
+
+  const callbackUrl =
+    searchParams?.searchParams.get("callbackUrl") ?? undefined;
 
   return (
     <main>
@@ -78,7 +79,7 @@ export default function Page() {
           <p>Sign in below to create your own collections</p>
         </div>
         {errorMessage && (
-          <Alert variant="destructive">
+          <Alert variant="destructive" className="max-w-sm">
             <AlertCircle className="pr-1" />
             <AlertTitle>Something went wrong</AlertTitle>
             <AlertDescription>{errorMessage}</AlertDescription>
@@ -86,7 +87,7 @@ export default function Page() {
         )}
 
         <div className="w-full">
-          <AuthButton onClick={() => signIn("google")}>
+          <AuthButton onClick={() => signIn("google", { callbackUrl })}>
             <svg
               className="mr-3 h-6 w-6"
               viewBox="0 0 24 24"
@@ -112,7 +113,7 @@ export default function Page() {
             Continue with Google
           </AuthButton>
 
-          <AuthButton onClick={() => signIn("discord")}>
+          <AuthButton onClick={() => signIn("discord", { callbackUrl })}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               preserveAspectRatio="xMidYMid"
@@ -128,7 +129,7 @@ export default function Page() {
           </AuthButton>
 
           {process.env.NODE_ENV === "development" && (
-            <AuthButton onClick={() => signIn("test-user")}>
+            <AuthButton onClick={() => signIn("test-user", { callbackUrl })}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
