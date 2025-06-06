@@ -32,7 +32,7 @@ export default async function EditCollectionPage({
 
   return (
     <main>
-      <section className="container pt-4 lg:pt-20">
+      <section className="pt-4 lg:pt-20">
         <CollectionForm
           onSubmit={updateCollection}
           defaultValues={collection as z.infer<typeof createCollectionSchema>}

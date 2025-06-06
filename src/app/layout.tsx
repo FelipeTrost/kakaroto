@@ -23,23 +23,22 @@ export default function RootLayout({ children }: PropsWithChildren) {
         <link rel="icon" type="image/x-icon" href="/favicon.svg" />
       </head>
       <body
-        className={cn(
-          "min-h-[100svh] bg-background font-sans antialiased",
-          fontSans.variable,
-        )}
+        className={cn("bg-background font-sans antialiased", fontSans.variable)}
       >
-        <AnalyticsProvider>
-          <SuspendedPageView />
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
-        </AnalyticsProvider>
-        <Toaster />
+        <div className={"px-4 sm:container"}>
+          <AnalyticsProvider>
+            <SuspendedPageView />
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+            </ThemeProvider>
+          </AnalyticsProvider>
+          <Toaster />
+        </div>
       </body>
     </html>
   );

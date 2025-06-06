@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
-import { GameStateStore, useGameStateStore } from "@/lib/game-state-store";
+import { type GameStateStore, useGameStateStore } from "@/lib/game-state-store";
 import { useRouter } from "next/navigation";
 import {
   type FormEvent,
@@ -12,7 +12,7 @@ import {
   useEffect,
   useRef,
   useMemo,
-  ReactNode,
+  type ReactNode,
 } from "react";
 import { IoCloseOutline } from "react-icons/io5";
 import { AnimatePresence } from "motion/react";
@@ -23,6 +23,7 @@ import { ArrowLeft } from "lucide-react";
 import { MdPeople } from "react-icons/md";
 import { captureEvent, eventTypes } from "@/components/analytics-provider";
 import { displayChallenge } from "@/lib/game/parser";
+import * as motion from "motion/react-client";
 
 function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
   const [playerInput, setPlayerInput] = useState("");
@@ -179,24 +180,32 @@ function DisplayChallenge({
   }, [segments, segmentIndexes]);
 
   return (
-    <div className="flex flex-col justify-start gap-4">
-      <span className="m-0 max-w-full break-words text-xl">
-        {segments.slice(0, segmentIndexes[currentSegment]).map((segment, i) => (
-          <span key={i} className="animate-fade-in">
-            {segment}
-          </span>
-        ))}
-      </span>
-      {currentSegment < segmentIndexes.length - 1 && (
-        <Button
-          onClick={() => setCurrentSegment((s) => s + 1)}
-          variant="outline"
-          className="w-min flex-grow-0"
-        >
-          Next Part
-        </Button>
-      )}
-    </div>
+    <BouncyDiv key={challenge.id} className="w-full">
+      <Card className="w-full p-0">
+        <CardContent className="px-4 py-10 md:px-14">
+          <div className="flex flex-col justify-start gap-4">
+            <span className="m-0 max-w-full break-words text-xl">
+              {segments
+                .slice(0, segmentIndexes[currentSegment])
+                .map((segment, i) => (
+                  <span key={i} className="animate-fade-in">
+                    {segment}
+                  </span>
+                ))}
+            </span>
+            {currentSegment < segmentIndexes.length - 1 && (
+              <Button
+                onClick={() => setCurrentSegment((s) => s + 1)}
+                variant="outline"
+                className="w-min flex-grow-0"
+              >
+                Next Part
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </BouncyDiv>
   );
 }
 
@@ -208,19 +217,13 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
   return (
     <section className="flex flex-grow flex-col justify-between">
       <div className="flex flex-grow items-center">
-        <AnimatePresence>
-          <BouncyDiv key={currentChallenge?.id} className="w-full">
-            <Card className="w-full p-0">
-              <CardContent className="px-4 py-10 md:px-14">
-                {currentChallenge && (
-                  <DisplayChallenge
-                    challenge={currentChallenge}
-                    key={currentChallenge.id}
-                  />
-                )}
-              </CardContent>
-            </Card>
-          </BouncyDiv>
+        <AnimatePresence mode="wait">
+          {currentChallenge && (
+            <DisplayChallenge
+              challenge={currentChallenge}
+              key={currentChallenge.id}
+            />
+          )}
         </AnimatePresence>
       </div>
 
@@ -228,7 +231,9 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
         <Button variant="secondary" onClick={openPlayerManagement}>
           <MdPeople className="mr-2" /> Players
         </Button>
-        <Button onClick={nextChallenge}>Next card</Button>
+        <motion.div whileTap={{ scale: 0.85 }}>
+          <Button onClick={nextChallenge}>Next card</Button>
+        </motion.div>
         {currentChallenge?.type === "ongoing" && (
           <Button
             onClick={() => {
@@ -247,13 +252,17 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
 function FinishedScreen() {
   return (
     <div className="flex h-[100svh] items-center justify-center">
-      <div className="prose mt-[-15%] text-center">
-        <h1 className="text-3xl font-bold text-foreground">That's it 🎉</h1>
-        <p className="text-muted-foreground">Hope you had fun</p>
-        <Link href="/game/search">
-          <Button variant="default">New Game</Button>
-        </Link>
-      </div>
+      <BouncyDiv>
+        <div className="prose mt-[-15%] text-center">
+          <h1 className="text-3xl font-bold text-foreground">That's it 🎉</h1>
+          <p className="text-muted-foreground">Hope you had fun</p>
+          <Link href="/game/search">
+            <motion.div whileTap={{ scale: 0.85 }}>
+              <Button variant="default">New Game</Button>
+            </motion.div>
+          </Link>
+        </div>
+      </BouncyDiv>
     </div>
   );
 }

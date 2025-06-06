@@ -11,7 +11,7 @@ export default async function CreateCollectionPage() {
 
   return (
     <main>
-      <section className="container pt-4 lg:pt-20">
+      <section className="pt-4 lg:pt-20">
         <CollectionForm onSubmit={createColection} />
       </section>
     </main>

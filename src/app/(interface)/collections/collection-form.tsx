@@ -13,7 +13,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -23,14 +23,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { createCollectionSchema } from "@/server/db/zod-schemas";
-import { useState, useTransition } from "react";
+import {
+  createCollectionSchema,
+  type CreateCollectionSchema,
+} from "@/server/db/zod-schemas";
+import { useEffect, useState, useTransition } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { useParams, useRouter } from "next/navigation";
 import QuestionForm from "./question-form";
 import { cn } from "@/lib/utils";
 import { Accordion } from "@/components/ui/accordion";
 import { type UserResponse } from "@/server/user-response";
+import { persistFormStateStore } from "@/lib/persistent-form-state-store";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { FaPlus } from "react-icons/fa";
 
 export default function CollectionForm({
   defaultValues,
@@ -38,47 +52,74 @@ export default function CollectionForm({
   update,
 }: {
   onSubmit: (
-    values: z.infer<typeof createCollectionSchema>,
+    values: CreateCollectionSchema,
     id: number,
   ) => Promise<UserResponse>;
-  defaultValues?: z.infer<typeof createCollectionSchema>;
+  defaultValues?: CreateCollectionSchema;
   update?: boolean;
 }) {
-  const [submitting, startSubmitTransition] = useTransition();
-  const params = useParams<{ collectionId: string }>();
-  const id = Number(decodeURIComponent(params.collectionId)) || 0;
-
   const { toast } = useToast();
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof createCollectionSchema>>({
+  // =================================
+  // Form state & data
+  // =================================
+  const params = useParams<{ collectionId: string }>();
+  const id = Number(decodeURIComponent(params.collectionId)) || -1;
+  const [currentTab, setCurrentTab] = useState("info");
+  const [accordionIdx, setAccordionIdx] = useState("0");
+
+  const form = useForm<CreateCollectionSchema>({
     resolver: zodResolver(createCollectionSchema),
     defaultValues: defaultValues ?? {
       cards: [{ question: "", type: "normal" }],
     },
   });
 
-  const errors = form.formState.errors;
-  const infoError = errors.title ?? errors.description;
-  const questionsError = errors.cards;
-
   const fieldArray = useFieldArray({
     control: form.control,
     name: "cards",
   });
 
-  const [accordionIdx, setAccordionIdx] = useState("0");
+  // =================================
+  // Form errors
+  // =================================
+  const errors = form.formState.errors;
+  const infoError = errors.title ?? errors.description;
+  const questionsError = errors.cards;
 
+  function goToError(_errors: typeof form.formState.errors) {
+    const infoError = _errors.title ?? _errors.description;
+    const questionsError = _errors.cards;
+
+    if (!(infoError && questionsError)) {
+      if (infoError) {
+        setCurrentTab("info");
+      } else if (questionsError) {
+        setCurrentTab("questions");
+
+        const challengeIdx = questionsError.findIndex?.((val) => !!val);
+        if (challengeIdx) setAccordionIdx(challengeIdx.toString());
+      }
+    }
+  }
+
+  // =================================
+  // Submit form
+  // =================================
+  const [submitting, startSubmitTransition] = useTransition();
   function onSubmitHandler(values: z.infer<typeof createCollectionSchema>) {
     startSubmitTransition(async () => {
       const response = await onSubmit(values, id);
 
-      if (response.type === "error")
+      if (response.type === "error") {
         toast({
           description: "Something went wrong",
           title: "Error",
         });
-      else if (response.type === "success") {
+      } else if (response.type === "success") {
+        persistFormStateStore.getState().resetState(id);
+
         toast({
           description: update ? "Collection updated" : "Collection created",
           title: "Success",
@@ -89,118 +130,174 @@ export default function CollectionForm({
     });
   }
 
-  return (
-    <Form {...form}>
-      <div className="m-auto max-w-[30rem] pb-4">
-        <form
-          onSubmit={form.handleSubmit(onSubmitHandler)}
-          className="space-y-4"
-        >
-          <Tabs defaultValue="info">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="info" className="relative">
-                Info
-                {infoError && (
-                  <MdInfo className="absolute right-[-.25rem] top-[-.25rem] z-50 fill-red-800 text-lg" />
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="questions" className="relative">
-                Challenges
-                {questionsError && (
-                  <MdInfo className="absolute right-[-.25rem] top-[-.25rem] z-50 fill-red-800 text-lg" />
-                )}
-              </TabsTrigger>
-            </TabsList>
+  // =================================
+  // Store from state
+  // =================================
+  const previousValues = persistFormStateStore((state) => state.hasState(id));
+  const [previousValuesAcknowledged, setPreviousValuesAcknowledged] =
+    useState(false);
 
-            <TabsContent value="info">
-              <Card>
-                <CardHeader>
-                  <CardTitle>
-                    {update ? "Update Collection" : "Create Card Collection"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Title</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Collection title" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                          {/**@ts-expect-error for some reason the field being nullable is not supported*/}
-                          <Textarea
-                            placeholder="Collection description"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-            <TabsContent value="questions">
-              <Card>
-                <CardHeader>
-                  <CardTitle> Questions</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-4">
-                  <Accordion
-                    type="single"
-                    defaultValue="0"
-                    collapsible
-                    value={accordionIdx}
-                    onValueChange={setAccordionIdx}
-                  >
-                    {fieldArray.fields.map((item, index) => (
-                      <QuestionForm
-                        form={form}
-                        idx={index}
-                        fieldArray={fieldArray}
-                        key={item.id}
-                      />
-                    ))}
-                  </Accordion>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      fieldArray.append({ question: "", type: "normal" });
-                      setAccordionIdx(fieldArray.fields.length.toString());
-                    }}
-                  >
-                    Add Question
-                  </Button>
-                </CardFooter>
-              </Card>
-            </TabsContent>
-          </Tabs>
-          <Button
-            type="submit"
-            disabled={submitting}
-            className={cn({
-              "animate-bounce": submitting,
-            })}
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      setPreviousValuesAcknowledged(true);
+      persistFormStateStore
+        .getState()
+        .setState(value as CreateCollectionSchema, id);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form, update, id]);
+
+  return (
+    <>
+      <Form {...form}>
+        <div className="m-auto max-w-[30rem] pb-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmitHandler, goToError)}
+            className="space-y-4"
           >
-            {update ? "Update Collection" : "Create Collection"}
-          </Button>
-        </form>
-      </div>
-    </Form>
+            <Tabs
+              value={currentTab}
+              onValueChange={(value) => setCurrentTab(value)}
+            >
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="info" className="relative">
+                  Info
+                  {infoError && (
+                    <MdInfo className="absolute right-[-.25rem] top-[-.25rem] z-50 fill-red-800 text-lg" />
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="questions" className="relative">
+                  Challenges
+                  {questionsError && (
+                    <MdInfo className="absolute right-[-.25rem] top-[-.25rem] z-50 fill-red-800 text-lg" />
+                  )}
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="info">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>
+                      {update ? "Update Collection" : "Create Card Collection"}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Title</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Collection title" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            {/**@ts-expect-error for some reason the field being nullable is not supported*/}
+                            <Textarea
+                              placeholder="Collection description"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              <TabsContent value="questions">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Challenges</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-4">
+                    <Accordion
+                      type="single"
+                      defaultValue="0"
+                      collapsible
+                      value={accordionIdx}
+                      onValueChange={setAccordionIdx}
+                    >
+                      {fieldArray.fields.map((item, index) => (
+                        <QuestionForm
+                          form={form}
+                          idx={index}
+                          fieldArray={fieldArray}
+                          key={item.id}
+                        />
+                      ))}
+                    </Accordion>
+                  </CardContent>
+                  <CardFooter>
+                    <Button
+                      variant="outline"
+                      onClick={(e) => {
+                        e.preventDefault(); // don't submit the form
+                        fieldArray.append({ question: "", type: "normal" });
+                        setAccordionIdx(fieldArray.fields.length.toString());
+                      }}
+                    >
+                      <FaPlus className="mr-2" />
+                      Add challenge
+                    </Button>
+                  </CardFooter>
+                </Card>
+              </TabsContent>
+            </Tabs>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className={cn({
+                "animate-bounce": submitting,
+              })}
+            >
+              {update ? "Update Collection" : "Create Collection"}
+            </Button>
+          </form>
+        </div>
+      </Form>
+
+      <Dialog
+        open={previousValues && !previousValuesAcknowledged}
+        onOpenChange={(open) => {
+          setPreviousValuesAcknowledged(!open);
+          persistFormStateStore.getState().resetState(id);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Pick up where you left off?</DialogTitle>
+            <DialogDescription>
+              You have unsaved form data from a previous session. Would you like
+              to continue where you left off?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose className={buttonVariants({ variant: "outline" })}>
+              Discard changes
+            </DialogClose>
+            <DialogClose
+              className={buttonVariants({ variant: "default" })}
+              onClick={() =>
+                form.reset(persistFormStateStore.getState().state[id])
+              }
+            >
+              Continue editing
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
