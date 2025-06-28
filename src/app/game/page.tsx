@@ -135,10 +135,14 @@ function DisplayChallenge({
   challenge: NonNullable<GameStateStore["currentChallenge"]>;
 }) {
   const [currentSegment, setCurrentSegment] = useState(0);
+  const question =
+    challenge.type === "ongoing-end"
+      ? challenge.questionEnd
+      : challenge.question;
 
   const [segments, segmentIndexes] = useMemo(() => {
     const displayParts = displayChallenge(
-      [challenge.question],
+      [question],
       challenge.selectedPlayers,
     )[0]!;
 
