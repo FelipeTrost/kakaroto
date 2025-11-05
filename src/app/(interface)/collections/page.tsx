@@ -1,5 +1,5 @@
 import Collection from "@/components/kakaroto/collection";
-import { getServerAuthSession } from "@/server/auth";
+import { auth } from "@/server/auth";
 import { db } from "@/server/db";
 import { questionCollections } from "@/server/db/schema";
 import { desc } from "drizzle-orm";
@@ -9,7 +9,7 @@ import { Suspense } from "react";
 import CollectionSkeleton from "@/components/kakaroto/loading";
 
 async function Collections() {
-  const session = await getServerAuthSession();
+  const session = await auth();
   const user = session?.user;
 
   if (!user) redirect("/api/auth/signin");

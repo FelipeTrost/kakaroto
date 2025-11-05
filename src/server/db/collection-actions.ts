@@ -3,7 +3,7 @@
 import { db } from ".";
 import { questionCollections } from "./schema";
 import { createCollectionSchema } from "./zod-schemas";
-import { getServerAuthSession } from "../auth";
+import { auth } from "../auth";
 import { userResponse } from "../user-response";
 import { type z } from "zod";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
@@ -13,7 +13,7 @@ export async function createColection(
   input: z.infer<typeof createCollectionSchema>,
 ) {
   const collectionData = createCollectionSchema.parse(input);
-  const session = await getServerAuthSession();
+  const session = await auth();
 
   if (!session)
     return userResponse(
@@ -41,7 +41,7 @@ export async function createColection(
 
 export async function deleteCollection(id: number) {
   try {
-    const session = await getServerAuthSession();
+    const session = await auth();
 
     if (!session)
       return userResponse(
@@ -68,7 +68,7 @@ export async function updateCollection(
   id: number,
 ) {
   const collectionData = createCollectionSchema.optional().parse(input);
-  const session = await getServerAuthSession();
+  const session = await auth();
 
   if (!session)
     return userResponse(

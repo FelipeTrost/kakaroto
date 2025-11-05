@@ -1,12 +1,12 @@
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getServerAuthSession } from "@/server/auth";
+import { auth } from "@/server/auth";
 import Link from "next/link";
 import AvatarMenu from "@/components/kakaroto/avatar-menu";
 import ReturnToGameButton from "./return-to-game-button";
 
 export default async function HomePage() {
-  const session = await getServerAuthSession();
+  const session = await auth();
   const user = session?.user;
 
   return (

@@ -7,12 +7,12 @@ import {
   questionCollections,
   users,
 } from "./schema";
-import { getServerAuthSession } from "../auth";
+import { auth } from "../auth";
 import { userResponse } from "../user-response";
 import { eq, sql } from "drizzle-orm";
 
 export async function deleteUser() {
-  const session = await getServerAuthSession();
+  const session = await auth();
 
   if (!session) return userResponse("error", "You must be logged in");
   const userId = session.user.id;

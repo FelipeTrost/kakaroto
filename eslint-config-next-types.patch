@@ -1,0 +1,28 @@
+diff --git a/node_modules/eslint-config-next/package.json b/node_modules/eslint-config-next/package.json
+index 441a46d..c2c28f6 100644
+--- a/package.json
++++ b/package.json
+@@ -44,19 +44,19 @@
+   },
+   "exports": {
+     ".": {
+-      "types": "./dist/index.d.ts",
++      "types": "./dist/src/index.d.ts",
+       "default": "./dist/index.js"
+     },
+     "./core-web-vitals": {
+-      "types": "./dist/core-web-vitals.d.ts",
++      "types": "./dist/src/core-web-vitals.d.ts",
+       "default": "./dist/core-web-vitals.js"
+     },
+     "./typescript": {
+-      "types": "./dist/typescript.d.ts",
++      "types": "./dist/src/typescript.d.ts",
+       "default": "./dist/typescript.js"
+     },
+     "./parser": {
+-      "types": "./dist/parser.d.ts",
++      "types": "./dist/src/parser.d.ts",
+       "default": "./dist/parser.js"
+     }
+   }

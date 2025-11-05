@@ -1,24 +1,25 @@
 import CollectionForm from "../collection-form";
 import z from "zod";
-import { getServerAuthSession } from "@/server/auth";
+import { auth } from "@/server/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/server/db";
 import { and, eq } from "drizzle-orm";
 import { type createCollectionSchema } from "@/server/db/zod-schemas";
 import { updateCollection } from "@/server/db/collection-actions";
 
-export default async function EditCollectionPage({
-  params,
-}: {
-  params: { collectionId: string };
-}) {
+export default async function EditCollectionPage(
+  props: {
+    params: Promise<{ collectionId: string }>;
+  }
+) {
+  const params = await props.params;
   const collectionId = z
     .number()
     .safeParse(Number(decodeURIComponent(params.collectionId)));
 
   if (!collectionId.success) redirect("/collections");
 
-  const session = await getServerAuthSession();
+  const session = await auth();
   const user = session?.user;
   if (!user)
     redirect(`/api/auth/signin?callbackUrl=/collections/${collectionId.data}`);

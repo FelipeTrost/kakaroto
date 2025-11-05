@@ -2,13 +2,13 @@ import { type PropsWithChildren } from "react";
 import "@/styles/globals.css";
 
 import { cn } from "@/lib/utils";
-import { getServerAuthSession } from "@/server/auth";
+import { auth } from "@/server/auth";
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import AvatarMenu from "@/components/kakaroto/avatar-menu";
 
 export default async function RootLayout({ children }: PropsWithChildren) {
-  const session = await getServerAuthSession();
+  const session = await auth();
   const user = session?.user;
   return (
     <>

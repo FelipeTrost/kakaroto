@@ -35,18 +35,17 @@ async function Collections({ page, query }: { page: number; query: string }) {
 }
 
 const paramsSchema = z.object({
-  page: z.coerce.number().min(1).default(1),
+  page: z.coerce.number().min(1).prefault(1),
   query: z.preprocess(
     (arg: unknown) => (typeof arg === "string" ? decodeURIComponent(arg) : arg),
-    z.string().default(""),
+    z.string().prefault(""),
   ),
 });
 
-export default function SearchPage({
-  searchParams: _searchParams,
-}: {
-  searchParams: unknown;
+export default async function SearchPage(props: {
+  searchParams: Promise<unknown>;
 }) {
+  const _searchParams = await props.searchParams;
   const searchParams = paramsSchema.safeParse(_searchParams);
 
   const page = searchParams.success ? searchParams.data.page : 1;

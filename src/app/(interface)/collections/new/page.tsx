@@ -1,10 +1,10 @@
-import { getServerAuthSession } from "@/server/auth";
+import { auth } from "@/server/auth";
 import { redirect } from "next/navigation";
 import { createColection } from "@/server/db/collection-actions";
 import CollectionForm from "../collection-form";
 
 export default async function CreateCollectionPage() {
-  const session = await getServerAuthSession();
+  const session = await auth();
   const user = session?.user;
 
   if (!user)

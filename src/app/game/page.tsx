@@ -184,7 +184,7 @@ function DisplayChallenge({
   }, [segments, segmentIndexes]);
 
   return (
-    <BouncyDiv key={challenge.id} className="w-full">
+    <BouncyDiv key={challenge.id} >
       <Card className="w-full p-0">
         <CardContent className="px-4 py-10 md:px-14">
           <div className="flex flex-col justify-start gap-4">
