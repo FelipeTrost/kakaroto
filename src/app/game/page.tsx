@@ -15,15 +15,17 @@ import {
   type ReactNode,
 } from "react";
 import { IoCloseOutline } from "react-icons/io5";
-import { AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
-import BouncyDiv from "@/components/kakaroto/bouncy-div";
 import { ArrowLeft } from "lucide-react";
 import { MdPeople } from "react-icons/md";
 import { captureEvent, eventTypes } from "@/components/analytics-provider";
 import { displayChallenge } from "@/lib/game/parser";
-import * as motion from "motion/react-client";
+import {
+  SlidingCard,
+  SlidingCardsContainer,
+} from "@/components/kakaroto/sliding-cards";
 
 function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
   const [playerInput, setPlayerInput] = useState("");
@@ -131,8 +133,10 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
 
 function DisplayChallenge({
   challenge,
+  wiggle,
 }: {
   challenge: NonNullable<GameStateStore["currentChallenge"]>;
+  wiggle: boolean;
 }) {
   const [currentSegment, setCurrentSegment] = useState(0);
   const question =
@@ -177,14 +181,16 @@ function DisplayChallenge({
       segmentIndexes.push(segments.length);
 
     return [segments, segmentIndexes];
-  }, [challenge]);
+  }, [challenge, question]);
 
   useEffect(() => {
     setCurrentSegment(0);
   }, [segments, segmentIndexes]);
 
+  const nextChallenge = useGameStateStore.use.useNextChallenge();
+
   return (
-    <BouncyDiv key={challenge.id}>
+    <SlidingCard next={nextChallenge} key={challenge.id} wiggle={wiggle}>
       <Card className="w-full p-0">
         <CardContent className="px-4 py-10 md:px-14">
           <div className="flex flex-col justify-start gap-4">
@@ -209,7 +215,7 @@ function DisplayChallenge({
           </div>
         </CardContent>
       </Card>
-    </BouncyDiv>
+    </SlidingCard>
   );
 }
 
@@ -218,17 +224,23 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
   const nextChallenge = useGameStateStore.use.useNextChallenge();
   const skipOngoingChallenge = useGameStateStore.use.useSkipOngoingChallenge();
 
+  const wiggleAnimation = useRef(true);
+  useEffect(() => {
+    wiggleAnimation.current = false;
+  }, []);
+
   return (
-    <section className="flex flex-grow flex-col justify-between">
-      <div className="flex flex-grow items-center">
-        <AnimatePresence mode="wait">
+    <section className="flex flex-grow flex-col justify-between overflow-hidden ">
+      <div className="relative flex flex-grow items-center">
+        <SlidingCardsContainer>
           {currentChallenge && (
             <DisplayChallenge
               challenge={currentChallenge}
               key={currentChallenge.id}
+              wiggle={wiggleAnimation.current}
             />
           )}
-        </AnimatePresence>
+        </SlidingCardsContainer>
       </div>
 
       <div className="flex gap-2 py-4">
@@ -256,7 +268,7 @@ function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
 function FinishedScreen() {
   return (
     <div className="flex h-[100svh] items-center justify-center">
-      <BouncyDiv>
+      <motion.div>
         <div className="prose mt-[-15%] text-center">
           <h1 className="text-3xl font-bold text-foreground">That's it 🎉</h1>
           <p className="text-muted-foreground">Hope you had fun</p>
@@ -266,7 +278,7 @@ function FinishedScreen() {
             </motion.div>
           </Link>
         </div>
-      </BouncyDiv>
+      </motion.div>
     </div>
   );
 }
