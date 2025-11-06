@@ -73,6 +73,7 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
       const message = setGameState("started");
       if (message)
         return toast({
+          variant: "destructive",
           description: message,
           title: "Error",
         });
