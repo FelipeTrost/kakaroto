@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   FormControl,
@@ -27,9 +26,9 @@ import { MdDelete, MdInfo } from "react-icons/md";
 import { FaAngleDown, FaPlus } from "react-icons/fa";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { RichTextarea, RichTextareaHandle } from "rich-textarea";
+import { RichTextarea, type RichTextareaHandle } from "rich-textarea";
 import { generateColors } from "@/lib/colors";
-import { type ComponentProps, forwardRef, useMemo, useRef } from "react";
+import { type ComponentProps, useMemo, useRef } from "react";
 
 function Textarea({
   parsedText,
@@ -43,6 +42,7 @@ function Textarea({
   colors: string[];
   textAreaRef?: React.Ref<RichTextareaHandle>;
 }) {
+  "use no memo";
   return (
     <RichTextarea
       placeholder="Everybody has to drink"
@@ -132,6 +132,9 @@ export default function QuestionForm({
     "cards"
   >;
 }) {
+  "use no memo";
+  // no memoization, otherwise RichTextarea doesn't update properly
+
   const fieldValue = form.watch(`cards.${idx}`);
 
   const parsedQuestion = parseQuestion(fieldValue?.question ?? "");
