@@ -1,7 +1,5 @@
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-import NextAuth, {
-  type NextAuthConfig,
-} from "next-auth";
+import NextAuth, { type NextAuthConfig } from "next-auth";
 import { type Adapter } from "next-auth/adapters";
 import DiscordProvider from "next-auth/providers/discord";
 import GoogleProvider from "next-auth/providers/google";
@@ -21,7 +19,7 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-    }
+    };
   }
   // interface User {
   //   // ...other properties
@@ -73,6 +71,7 @@ const _authOptions: NextAuthConfig = {
     signIn: "/signin",
     error: "/signin",
   },
+  trustHost: true,
 };
 
 if (env.NODE_ENV === "development") {
