@@ -33,7 +33,7 @@ export function CollectionSelectionDrawer() {
   const selectedCollections = useGameStateStore(
     (state) => state.selectedCollections.length,
   );
-  const resetGameStore = useGameStateStore.use.reset();
+  const resetGameStore = useGameStateStore.use.useReset();
 
   const trigger = (
     <button
@@ -107,7 +107,7 @@ export function CollectionSelectionDrawer() {
 
 function SelectedColections() {
   const data = useGameStateStore((state) => state.selectedCollections);
-  const deleteChallenge = useGameStateStore.use.deleteChallenge();
+  const deleteChallenge = useGameStateStore.use.useDeleteChallenge();
 
   return (
     <ScrollArea className="h-auto max-h-[30vh] overflow-y-auto">

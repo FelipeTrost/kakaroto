@@ -95,8 +95,8 @@ function SearchResults({ data }: { data?: DataType }) {
   const query = searchParams.get("query") ?? "";
   const page = Math.max(Number(searchParams.get("page")), 1);
 
-  const addChallenge = useGameStateStore.use.addChallenge();
-  const deleteChallenge = useGameStateStore.use.deleteChallenge();
+  const addChallenge = useGameStateStore.use.useAddChallenge();
+  const deleteChallenge = useGameStateStore.use.useDeleteChallenge();
   const collectionSelected = useGameStateStore(
     (state) => state.selectedCollections,
   );

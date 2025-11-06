@@ -31,12 +31,12 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
   const { toast } = useToast();
   const router = useRouter();
 
-  const players = useGameStateStore.use.players();
-  const addGamePlayer = useGameStateStore.use.addPlayer();
-  const removePlayer = useGameStateStore.use.removePlayer();
-  const setGameState = useGameStateStore.use.setGameState();
+  const players = useGameStateStore.use.usePlayers();
+  const addGamePlayer = useGameStateStore.use.useAddPlayer();
+  const removePlayer = useGameStateStore.use.useRemovePlayer();
+  const setGameState = useGameStateStore.use.useSetGameState();
   const checkPlayersAndSetCards =
-    useGameStateStore.use.checkPlayersAndSetCards();
+    useGameStateStore.use.useCheckPlayersAndSetCards();
 
   useEffect(() => {
     if (!inGameClose) inputRef.current?.focus();
@@ -184,7 +184,7 @@ function DisplayChallenge({
   }, [segments, segmentIndexes]);
 
   return (
-    <BouncyDiv key={challenge.id} >
+    <BouncyDiv key={challenge.id}>
       <Card className="w-full p-0">
         <CardContent className="px-4 py-10 md:px-14">
           <div className="flex flex-col justify-start gap-4">
@@ -214,9 +214,9 @@ function DisplayChallenge({
 }
 
 function Game({ openPlayerManagement }: { openPlayerManagement: () => void }) {
-  const currentChallenge = useGameStateStore.use.currentChallenge();
-  const nextChallenge = useGameStateStore.use.nextChallenge();
-  const skipOngoingChallenge = useGameStateStore.use.skipOngoingChallenge();
+  const currentChallenge = useGameStateStore.use.useCurrentChallenge();
+  const nextChallenge = useGameStateStore.use.useNextChallenge();
+  const skipOngoingChallenge = useGameStateStore.use.useSkipOngoingChallenge();
 
   return (
     <section className="flex flex-grow flex-col justify-between">
@@ -272,7 +272,7 @@ function FinishedScreen() {
 }
 
 export default function GamePage() {
-  const state = useGameStateStore.use.state();
+  const state = useGameStateStore.use.useState();
   const router = useRouter();
   const [inGamePlayerManagement, setInGamePlayerManagement] = useState(false);
 

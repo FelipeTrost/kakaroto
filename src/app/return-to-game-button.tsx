@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
 import BouncyDiv from "@/components/kakaroto/bouncy-div";
 import { buttonVariants } from "@/components/ui/button";
-import { useGameStateStore } from "@/lib/game-state-store"
+import { useGameStateStore } from "@/lib/game-state-store";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 export default function ReturnToGameButton() {
-  const gameState = useGameStateStore.use.state();
+  const gameState = useGameStateStore.use.useState();
   if (gameState === "started")
     return (
       <BouncyDiv>
@@ -18,5 +18,5 @@ export default function ReturnToGameButton() {
           Return to game
         </Link>
       </BouncyDiv>
-    )
+    );
 }
