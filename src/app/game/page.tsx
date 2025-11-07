@@ -60,6 +60,7 @@ function PlayerManagement({ inGameClose }: { inGameClose?: () => void }) {
       const message = checkPlayersAndSetCards();
       if (message)
         return toast({
+          variant: "destructive",
           description: message,
           title: "Error",
         });
