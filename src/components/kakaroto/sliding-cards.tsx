@@ -65,7 +65,7 @@ export function SlidingCard({
 
         const rect = target.getBoundingClientRect();
         if (
-          Math.abs(info.velocity.x) > rect.width * 0.4 ||
+          Math.abs(info.velocity.x) > rect.width * 0.35 ||
           Math.abs(info.offset.x) > rect.width * 0.6
         ) {
           x.set(x.get() * 4);
