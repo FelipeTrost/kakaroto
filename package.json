@@ -6,7 +6,7 @@
   "scripts": {
     "build": "SKIP_ENV_VALIDATION=1 next build",
     "db:studio": "drizzle-kit studio",
-    "db:generate": "drizzle-kit generate:pg",
+    "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "prestart": "bun run db:push",
     "dev": "next dev --port 3001 -H 0.0.0.0",
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^0.3.6",
-    "@hookform/resolvers": "^3.3.4",
+    "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-avatar": "^1.1.10",
@@ -46,7 +46,7 @@
     "posthog-js": "^1.217.2",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "react-hook-form": "^7.50.1",
+    "react-hook-form": "^7.69.0",
     "react-icons": "^5.0.1",
     "rich-textarea": "^0.26.4",
     "tailwind-merge": "^2.2.1",
