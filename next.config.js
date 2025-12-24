@@ -7,6 +7,12 @@ await import("./src/env.js");
 /** @type {import("next").NextConfig} */
 const config = {
   reactCompiler: false,
+  logging: {
+    incomingRequests:true,
+    fetches: {
+      fullUrl: true
+    }
+  }
 };
 
 export default config;
