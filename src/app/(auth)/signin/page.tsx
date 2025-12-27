@@ -71,9 +71,6 @@ function _Page() {
             className="mr-[-1ch] max-w-full text-center text-2xl font-bold lg:text-4xl"
           >
             Kakaroto 🍺
-            <span className="ml-2 rounded border-[2px] border-solid border-red-900 p-1">
-              beta
-            </span>
           </h1>
           <p>Sign in below to create your own collections</p>
         </div>
