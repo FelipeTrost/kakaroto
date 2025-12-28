@@ -20,6 +20,10 @@ export default function RootLayout({ children }: PropsWithChildren) {
       <head>
         {/** TODO: make theme color match theme provider's color*/}
         <meta name="theme-color" content="var(hsl(--background))" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
+        />
         <link rel="icon" type="image/x-icon" href="/favicon.svg" />
       </head>
       <body
