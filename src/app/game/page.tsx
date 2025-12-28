@@ -300,6 +300,32 @@ export default function GamePage() {
       setInGamePlayerManagement(true);
   }, [router]);
 
+  useEffect(() => {
+    async function requestFullScreen() {
+      try {
+        if (document.documentElement.requestFullscreen)
+          await document.documentElement.requestFullscreen();
+      } catch (error) {
+        console.error("Full screen request");
+        console.error(error);
+      }
+    }
+
+    requestFullScreen();
+
+    return () => {
+      async function exitFullScreen() {
+        try {
+          if (document.exitFullscreen) document.exitFullscreen();
+        } catch (error) {
+          console.error("Error exiting full screen");
+          console.error(error);
+        }
+      }
+      exitFullScreen();
+    };
+  }, []);
+
   if (inGamePlayerManagement)
     return (
       <PlayerManagement inGameClose={() => setInGamePlayerManagement(false)} />
